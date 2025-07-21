@@ -24,9 +24,9 @@ export default function DonorsPage() {
   return (
     <div className="container py-12 md:py-16">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">Find a Lifesaver</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">একজন জীবনরক্ষাকারী খুঁজুন</h1>
         <p className="text-lg md:text-xl text-foreground/80 mt-4 max-w-3xl mx-auto">
-          Search for available blood donors in your area. Your simple search can connect you with a hero.
+          আপনার এলাকায় উপলব্ধ রক্তদাতাদের জন্য অনুসন্ধান করুন। আপনার একটি সাধারণ অনুসন্ধান আপনাকে একজন বীরের সাথে সংযুক্ত করতে পারে।
         </p>
       </div>
 
@@ -34,10 +34,10 @@ export default function DonorsPage() {
         <CardContent className="p-6">
           <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
             <div className="space-y-2">
-              <label htmlFor="blood-type" className="font-medium">Blood Type</label>
+              <label htmlFor="blood-type" className="font-medium">রক্তের গ্রুপ</label>
               <Select>
                 <SelectTrigger id="blood-type">
-                  <SelectValue placeholder="Any" />
+                  <SelectValue placeholder="যেকোনো" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="A+">A+</SelectItem>
@@ -52,33 +52,33 @@ export default function DonorsPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="division" className="font-medium">Division</label>
+              <label htmlFor="division" className="font-medium">বিভাগ</label>
               <Select>
                 <SelectTrigger id="division">
-                  <SelectValue placeholder="Any" />
+                  <SelectValue placeholder="যেকোনো" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Dhaka">Dhaka</SelectItem>
-                  <SelectItem value="Chittagong">Chittagong</SelectItem>
-                  <SelectItem value="Rajshahi">Rajshahi</SelectItem>
-                  <SelectItem value="Khulna">Khulna</SelectItem>
-                  <SelectItem value="Sylhet">Sylhet</SelectItem>
-                  <SelectItem value="Barisal">Barisal</SelectItem>
-                  <SelectItem value="Rangpur">Rangpur</SelectItem>
-                  <SelectItem value="Mymensingh">Mymensingh</SelectItem>
+                  <SelectItem value="Dhaka">ঢাকা</SelectItem>
+                  <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                  <SelectItem value="Rajshahi">রাজশাহী</SelectItem>
+                  <SelectItem value="Khulna">খুলনা</SelectItem>
+                  <SelectItem value="Sylhet">সিলেট</SelectItem>
+                  <SelectItem value="Barisal">বরিশাল</SelectItem>
+                  <SelectItem value="Rangpur">রংপুর</SelectItem>
+                  <SelectItem value="Mymensingh">ময়মনসিংহ</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="district" className="font-medium">District</label>
-              <Input id="district" placeholder="e.g., Dhaka" />
+              <label htmlFor="district" className="font-medium">জেলা</label>
+              <Input id="district" placeholder="যেমন, ঢাকা" />
             </div>
             <div className="space-y-2">
-              <label htmlFor="upazila" className="font-medium">Upazila / Area</label>
-              <Input id="upazila" placeholder="e.g., Gulshan" />
+              <label htmlFor="upazila" className="font-medium">উপজেলা / এলাকা</label>
+              <Input id="upazila" placeholder="যেমন, গুলশান" />
             </div>
             <Button type="submit" className="w-full lg:w-auto bg-primary hover:bg-primary/90">
-              <Search className="mr-2 h-4 w-4" /> Search
+              <Search className="mr-2 h-4 w-4" /> অনুসন্ধান
             </Button>
           </form>
         </CardContent>
@@ -104,14 +104,14 @@ export default function DonorsPage() {
                <Separator />
                 {donor.available ? (
                     <Badge variant="outline" className="text-green-600 border-green-600 w-full justify-center py-2">
-                        <UserCheck className="mr-2 h-4 w-4" /> Available for Donation
+                        <UserCheck className="mr-2 h-4 w-4" /> দানের জন্য উপলব্ধ
                     </Badge>
                 ) : (
                     <Badge variant="outline" className="text-red-600 border-red-600 w-full justify-center py-2">
-                        <UserX className="mr-2 h-4 w-4" /> Not Available
+                        <UserX className="mr-2 h-4 w-4" /> উপলব্ধ নয়
                     </Badge>
                 )}
-              <Button className="w-full bg-accent hover:bg-accent/90">View Profile & Contact</Button>
+              <Button className="w-full bg-accent hover:bg-accent/90">প্রোফাইল দেখুন ও যোগাযোগ করুন</Button>
             </CardFooter>
           </Card>
         ))}

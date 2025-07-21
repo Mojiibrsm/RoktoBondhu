@@ -4,10 +4,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Droplet } from 'lucide-react';
 
 const navLinks = [
-  { href: '/donors', label: 'Find Donors' },
-  { href: '/requests', label: 'Blood Requests' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/donors', label: 'দাতা খুঁজুন' },
+  { href: '/requests', label: 'রক্তের অনুরোধ' },
+  { href: '/blog', label: 'ব্লগ' },
+  { href: '/faq', label: 'সাধারণ জিজ্ঞাসা' },
 ];
 
 export function Header() {
@@ -18,7 +18,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Droplet className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline text-lg">
-              BloodConnect Pro
+              ব্লাডকানেক্ট প্রো
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -41,7 +41,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              aria-label="Open menu"
+              aria-label="মেনু খুলুন"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -49,7 +49,7 @@ export function Header() {
           <SheetContent side="left">
             <Link href="/" className="mr-6 flex items-center space-x-2 mb-6">
               <Droplet className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline text-lg">BloodConnect Pro</span>
+              <span className="font-bold font-headline text-lg">ব্লাডকানেক্ট প্রো</span>
             </Link>
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
@@ -65,10 +65,10 @@ export function Header() {
             <div className="mt-6 pt-6 border-t">
                  <div className="flex flex-col space-y-2">
                     <Button asChild variant="outline" className="border-accent text-accent">
-                        <Link href="/login">Log In</Link>
+                        <Link href="/login">লগ ইন</Link>
                     </Button>
                     <Button asChild className="bg-primary hover:bg-primary/90">
-                        <Link href="/register">Register</Link>
+                        <Link href="/register">নিবন্ধন</Link>
                     </Button>
                  </div>
             </div>
@@ -78,10 +78,10 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end space-x-2">
             <div className="hidden md:flex md:space-x-2">
                 <Button asChild variant="outline" className="border-accent text-accent">
-                    <Link href="/login">Log In</Link>
+                    <Link href="/login">লগ ইন</Link>
                 </Button>
                 <Button asChild className="bg-primary hover:bg-primary/90">
-                    <Link href="/register">Register</Link>
+                    <Link href="/register">নিবন্ধন</Link>
                 </Button>
             </div>
         </div>

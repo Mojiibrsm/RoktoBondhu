@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   question: z.string().min(10, {
-    message: 'Question must be at least 10 characters.',
+    message: 'প্রশ্নটি কমপক্ষে ১০ অক্ষরের হতে হবে।',
   }),
 });
 
@@ -39,7 +39,7 @@ export function FaqForm() {
       const response = await answerFAQOnServer({ question: values.question });
       setResult(response);
     } catch (e) {
-      setError('An error occurred while fetching the answer. Please try again.');
+      setError('উত্তর আনতে একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
       console.error(e);
     } finally {
       setLoading(false);
@@ -49,8 +49,8 @@ export function FaqForm() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="font-headline">Ask a Question</CardTitle>
-        <CardDescription>Get an AI-powered answer to your specific question about blood donation.</CardDescription>
+        <CardTitle className="font-headline">একটি প্রশ্ন জিজ্ঞাসা করুন</CardTitle>
+        <CardDescription>রক্তদান সম্পর্কে আপনার নির্দিষ্ট প্রশ্নের একটি এআই-চালিত উত্তর পান।</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -60,10 +60,10 @@ export function FaqForm() {
               name="question"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Question</FormLabel>
+                  <FormLabel>আপনার প্রশ্ন</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., How long do I have to wait to donate after getting a tattoo?"
+                      placeholder="যেমন, ট্যাটু করার পর রক্ত দিতে কতদিন অপেক্ষা করতে হয়?"
                       className="resize-none"
                       {...field}
                     />
@@ -76,7 +76,7 @@ export function FaqForm() {
           <CardFooter>
             <Button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary/90">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Getting Answer...' : 'Ask'}
+              {loading ? 'উত্তর আনা হচ্ছে...' : 'জিজ্ঞাসা করুন'}
             </Button>
           </CardFooter>
         </form>
@@ -85,7 +85,7 @@ export function FaqForm() {
       {error && (
         <div className="p-4 pt-0">
           <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>ত্রুটি</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         </div>
@@ -95,12 +95,12 @@ export function FaqForm() {
         <div className="p-4 pt-0">
           <Card className="bg-background/50">
             <CardHeader>
-              <CardTitle className="font-headline text-xl">Answer</CardTitle>
+              <CardTitle className="font-headline text-xl">উত্তর</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground/90">{result.answer}</p>
               <div>
-                <h4 className="font-semibold mb-2">Sources:</h4>
+                <h4 className="font-semibold mb-2">সূত্র:</h4>
                 <ul className="list-disc pl-5 space-y-1">
                   {result.sources.map((source, index) => (
                     <li key={index}>

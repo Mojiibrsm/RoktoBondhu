@@ -14,10 +14,10 @@ export default function BlogPage() {
     <div className="container py-12 md:py-16">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-          Our Blog
+          আমাদের ব্লগ
         </h1>
         <p className="text-lg md:text-xl text-foreground/80 mt-4 max-w-3xl mx-auto">
-          Insights, stories, and information about blood donation. Stay informed, stay inspired.
+          রক্তদান সম্পর্কে অন্তর্দৃষ্টি, গল্প এবং তথ্য। অবগত থাকুন, অনুপ্রাণিত থাকুন।
         </p>
       </div>
 
@@ -41,7 +41,7 @@ export default function BlogPage() {
                   <p className="text-foreground/80 line-clamp-4">{post.excerpt}</p>
                 </CardContent>
                 <CardFooter className="p-0 pt-4 mt-auto flex justify-between items-center text-sm text-muted-foreground">
-                  <span>By {post.author}</span>
+                  <span>{post.author} দ্বারা</span>
                   <span>{post.date}</span>
                 </CardFooter>
               </div>

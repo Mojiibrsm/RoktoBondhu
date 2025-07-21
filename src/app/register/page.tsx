@@ -23,19 +23,19 @@ export default function RegisterPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
         <Card className="mx-auto max-w-sm w-full shadow-xl">
         <CardHeader>
-            <CardTitle className="text-3xl font-headline text-primary">Become a Donor</CardTitle>
+            <CardTitle className="text-3xl font-headline text-primary">একজন দাতা হন</CardTitle>
             <CardDescription>
-            Enter your information to create an account
+            একটি অ্যাকাউন্ট তৈরি করতে আপনার তথ্য লিখুন
             </CardDescription>
         </CardHeader>
         <CardContent>
             <div className="grid gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="full-name">Full name</Label>
-                <Input id="full-name" placeholder="Max Robinson" required />
+                <Label htmlFor="full-name">পুরো নাম</Label>
+                <Input id="full-name" placeholder="ম্যাক্স রবিনসন" required />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">ইমেল</Label>
                 <Input
                 id="email"
                 type="email"
@@ -44,10 +44,10 @@ export default function RegisterPage() {
                 />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="blood-type">Blood Type</Label>
+                <Label htmlFor="blood-type">রক্তের গ্রুপ</Label>
                 <Select>
                   <SelectTrigger id="blood-type">
-                    <SelectValue placeholder="Select your blood type" />
+                    <SelectValue placeholder="আপনার রক্তের গ্রুপ নির্বাচন করুন" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="A+">A+</SelectItem>
@@ -62,20 +62,20 @@ export default function RegisterPage() {
                 </Select>
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">পাসওয়ার্ড</Label>
                 <Input id="password" type="password" />
             </div>
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                Create an account
+                অ্যাকাউন্ট তৈরি করুন
             </Button>
             <Button variant="outline" className="w-full">
-                Sign up with Google
+                গুগল দিয়ে সাইন আপ করুন
             </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+            ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{" "}
             <Link href="/login" className="underline text-accent">
-                Sign in
+                সাইন ইন করুন
             </Link>
             </div>
         </CardContent>

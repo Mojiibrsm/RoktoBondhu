@@ -16,13 +16,13 @@ export default function RequestsPage() {
     <div className="container py-12 md:py-16">
       <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
         <div className="text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">Blood Requests</h1>
+            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">রক্তের অনুরোধ</h1>
             <p className="text-lg md:text-xl text-foreground/80 mt-4 max-w-3xl">
-            Browse active requests or post one if you are in need.
+            সক্রিয় অনুরোধগুলি ব্রাউজ করুন অথবা আপনার প্রয়োজনে একটি পোস্ট করুন।
             </p>
         </div>
         <Button size="lg" className="bg-accent hover:bg-accent/90 flex-shrink-0">
-          <PlusCircle className="mr-2 h-5 w-5" /> Post a Request
+          <PlusCircle className="mr-2 h-5 w-5" /> একটি অনুরোধ পোস্ট করুন
         </Button>
       </div>
 
@@ -32,7 +32,7 @@ export default function RequestsPage() {
             <CardHeader>
               <div className="flex justify-between items-start">
                   <CardTitle className="font-headline text-2xl">{request.patientName}</CardTitle>
-                  <Badge variant={request.status === 'Urgent' ? 'destructive' : 'secondary'} className={request.status === 'Urgent' ? 'bg-primary' : ''}>
+                  <Badge variant={request.status === 'জরুরী' ? 'destructive' : 'secondary'} className={request.status === 'জরুরী' ? 'bg-primary' : ''}>
                       {request.status}
                   </Badge>
               </div>
@@ -53,7 +53,7 @@ export default function RequestsPage() {
             </CardContent>
             <CardFooter>
               <Button className="w-full bg-primary hover:bg-primary/90">
-                View Details & Donate
+                বিস্তারিত দেখুন ও দান করুন
               </Button>
             </CardFooter>
           </Card>

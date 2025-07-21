@@ -50,13 +50,13 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         
         <div
           className="prose prose-lg max-w-none text-foreground/90"
-          dangerouslySetInnerHTML={{ __html: post.content || `<p>${post.excerpt}</p><p>Full content for this article is not yet available. Please check back later for more details on this important topic.</p>` }}
+          dangerouslySetInnerHTML={{ __html: post.content || `<p>${post.excerpt}</p><p>এই নিবন্ধটির সম্পূর্ণ বিষয়বস্তু এখনও উপলব্ধ নয়। এই গুরুত্বপূর্ণ বিষয়ে আরও বিস্তারিত জানার জন্য অনুগ্রহ করে পরে আবার দেখুন।</p>` }}
         />
         
         <Separator className="my-8" />
         
         <div className="mt-8">
-            <h3 className="font-headline text-xl mb-4">About the Author</h3>
+            <h3 className="font-headline text-xl mb-4">লেখক সম্পর্কে</h3>
             <p className="text-muted-foreground">{post.author}</p>
         </div>
       </article>

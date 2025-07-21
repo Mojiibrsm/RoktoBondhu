@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake } from 'lucide-react';
 import { topDonors, urgentRequests, blogPosts } from '@/lib/placeholder-data';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 export default function Home() {
   return (
@@ -15,18 +17,18 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary">
-                  Connect. Donate. Save Lives.
+                  সংযোগ করুন। দান করুন। জীবন বাঁচান।
                 </h1>
                 <p className="max-w-[600px] text-foreground/80 md:text-xl">
-                  BloodConnect Pro is your platform to find blood donors and request blood in times of need. Join our community and make a difference.
+                  ব্লাডকানেক্ট প্রো রক্তদাতা খুঁজে পেতে এবং প্রয়োজনের সময় রক্তের জন্য অনুরোধ করার একটি প্ল্যাটফর্ম। আমাদের সম্প্রদায়ে যোগ দিন এবং একটি পরিবর্তন আনুন।
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                  <Link href="/donors">Find a Donor</Link>
+                  <Link href="/donors">দাতা খুঁজুন</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                  <Link href="/requests">Request Blood</Link>
+                  <Link href="/requests">রক্তের জন্য অনুরোধ</Link>
                 </Button>
               </div>
             </div>
@@ -34,7 +36,7 @@ export default function Home() {
               src="https://placehold.co/600x400.png"
               width="600"
               height="400"
-              alt="Hero"
+              alt="হিরো"
               data-ai-hint="community blood donation"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
             />
@@ -46,9 +48,9 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">Urgent Blood Requests</h2>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">জরুরী রক্তের অনুরোধ</h2>
               <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                These are critical requests that need your immediate attention. Your donation can save a life.
+                এইগুলি গুরুতর অনুরোধ যা আপনার অবিলম্বে মনোযোগ প্রয়োজন। আপনার দান একটি জীবন বাঁচাতে পারে।
               </p>
             </div>
           </div>
@@ -63,12 +65,12 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> {request.location}</p>
-                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> Posted {request.postedTime}</p>
+                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> পোস্ট করা হয়েছে {request.postedTime}</p>
                   <p className="text-sm text-foreground/80 pt-2">{request.reason}</p>
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full bg-accent hover:bg-accent/90">
-                    <Link href={`/requests`}>Contact & Donate</Link>
+                    <Link href={`/requests`}>যোগাযোগ ও দান করুন</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -81,9 +83,9 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">Our Heroes</h2>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">আমাদের বীরেরা</h2>
               <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Meet some of our most dedicated donors who are making a real impact in the community.
+                আমাদের সবচেয়ে নিবেদিত কিছু দাতাদের সাথে দেখা করুন যারা সম্প্রদায়ে সত্যিকারের প্রভাব ফেলছেন।
               </p>
             </div>
           </div>
@@ -100,7 +102,7 @@ export default function Home() {
                   <Droplet className="w-4 h-4 text-primary" />
                   <span className="font-bold text-primary">{donor.bloodType}</span>
                 </div>
-                <p className="text-sm text-foreground/80 mt-1">{donor.donations} donations</p>
+                <p className="text-sm text-foreground/80 mt-1">{donor.donations} বার দান করেছেন</p>
               </Card>
             ))}
           </div>
@@ -110,9 +112,9 @@ export default function Home() {
       <section id="blog" className="w-full py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
           <div className="space-y-4 mb-8">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary text-center">From Our Blog</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary text-center">আমাদের ব্লগ থেকে</h2>
             <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mx-auto text-center">
-              Stay informed and inspired with our articles on blood donation.
+              রক্তদান সম্পর্কিত আমাদের নিবন্ধগুলির সাথে অবগত এবং অনুপ্রাণিত থাকুন।
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -144,7 +146,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <Button asChild variant="link" className="text-accent text-lg">
               <Link href="/blog">
-                Read More Posts <ArrowRight className="ml-2 h-5 w-5" />
+                আরও পোস্ট পড়ুন <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
@@ -154,29 +156,18 @@ export default function Home() {
       <section className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
         <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
           <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline text-primary">Join the Lifesaving Community</h2>
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline text-primary">জীবন বাঁচানোর সম্প্রদায়ে যোগ দিন</h2>
             <p className="mx-auto max-w-[600px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Register as a donor today and become a hero in someone's story. It's simple, safe, and profoundly impactful.
+              আজই একজন দাতা হিসাবে নিবন্ধন করুন এবং কারো গল্পের নায়ক হয়ে উঠুন। এটি সহজ, নিরাপদ এবং গভীরভাবে প্রভাবশালী।
             </p>
           </div>
           <div className="mx-auto w-full max-w-sm space-x-2">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-              <Link href="/register">Register to Donate <HeartHandshake className="ml-2 h-5 w-5" /></Link>
+              <Link href="/register">দান করতে নিবন্ধন করুন <HeartHandshake className="ml-2 h-5 w-5" /></Link>
             </Button>
           </div>
         </div>
       </section>
     </div>
   );
-}
-
-// Dummy Avatar components for placeholder
-const Avatar: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => <div className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}>{children}</div>
-const AvatarImage: React.FC<{ src: string, alt: string, "data-ai-hint"?: string }> = ({ src, alt, "data-ai-hint": dataAiHint }) => <Image src={src} alt={alt} width={96} height={96} className="aspect-square h-full w-full" data-ai-hint={dataAiHint} />
-const AvatarFallback: React.FC<{ children: React.ReactNode }> = ({ children }) => <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">{children}</span>
-
-function cn(...inputs: any[]) {
-  const twMerge = require('tailwind-merge').twMerge;
-  const clsx = require('clsx');
-  return twMerge(clsx(inputs));
 }
