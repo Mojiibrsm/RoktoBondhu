@@ -1,6 +1,6 @@
 // src/context/AuthContext.tsx
 'use client';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import { 
     getAuth, 
     onAuthStateChanged, 
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if (docSnap.exists()) {
                         setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
                     } else {
-                        setUserDoc(null); // Doc doesn't exist
+                        setUserDoc(null);
                     }
                 } catch (error) {
                     console.error("Error fetching user document:", error);
@@ -74,43 +74,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (email: string, pass: string) => {
-        setLoading(true);
-        return signInWithEmailAndPassword(auth, email, pass).finally(() => setLoading(false));
+        return signInWithEmailAndPassword(auth, email, pass);
     };
 
     const signup = async (email: string, pass: string, data: object) => {
-        setLoading(true);
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            const user = userCredential.user;
-            const userRef = doc(db, "donors", user.uid);
-            await setDoc(userRef, {
-                ...data,
-                uid: user.uid,
-                email: user.email,
-            });
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                 setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
-            }
-            return userCredential;
-        } finally {
-            setLoading(false);
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
+        const userRef = doc(db, "donors", user.uid);
+        const userData = {
+            ...data,
+            uid: user.uid,
+            email: user.email,
+        };
+        await setDoc(userRef, userData);
+        setUserDoc(userData as UserDocument);
+        return userCredential;
     };
 
     const logout = () => {
         return signOut(auth);
     };
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         userDoc,
         loading,
         login,
         signup,
         logout,
-    };
+    }), [user, userDoc, loading]);
 
     return (
         <AuthContext.Provider value={value}>
