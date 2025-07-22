@@ -1,4 +1,3 @@
-
 // src/app/register/page.tsx
 'use client';
 
@@ -40,6 +39,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { divisions, districts, upazilas } from "@/lib/placeholder-data";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const formSchema = z.object({
   fullName: z.string().min(1, { message: "পুরো নাম আবশ্যক।" }),
@@ -78,15 +79,40 @@ export default function RegisterPage() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
-        console.log(values);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setLoading(false);
-        toast({
-            title: "সফল!",
-            description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
-        });
-        form.reset();
+        try {
+            const docRef = await addDoc(collection(db, "donors"), {
+                name: values.fullName,
+                email: values.email,
+                phone: values.phoneNumber,
+                // In a real app, password should be hashed before saving or use Firebase Auth
+                // password: values.password, 
+                dateOfBirth: values.dateOfBirth,
+                gender: values.gender,
+                bloodType: values.bloodType,
+                lastDonation: values.lastDonationDate,
+                totalDonations: values.totalDonations,
+                division: values.division,
+                district: values.district,
+                upazila: values.upazila,
+                available: values.availableToDonate,
+                createdAt: new Date(),
+            });
+            console.log("Document written with ID: ", docRef.id);
+            toast({
+                title: "সফল!",
+                description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
+            });
+            form.reset();
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            toast({
+                variant: "destructive",
+                title: "ত্রুটি!",
+                description: "নিবন্ধন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+            });
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -288,5 +314,3 @@ export default function RegisterPage() {
     </div>
     );
 }
-
-    

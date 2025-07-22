@@ -1,15 +1,98 @@
-
+'use client';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList, Github, Linkedin, Globe } from 'lucide-react';
-import { topDonors, urgentRequests, blogPosts, testimonials } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, limit, orderBy } from "firebase/firestore";
+
+interface UrgentRequest {
+    id: string;
+    patientName: string;
+    bloodType: string;
+    location: string;
+    reason: string;
+    postedTime: string; // This might need conversion from a timestamp
+}
+
+interface TopDonor {
+    id: string;
+    name: string;
+    location: string;
+    bloodType: string;
+    donations: number;
+    image: string;
+}
+
+interface BlogPost {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string;
+    author: string;
+    date: string;
+    image: string;
+    aiHint: string;
+}
+
+interface Testimonial {
+    id: string;
+    name: string;
+    location: string;
+    quote: string;
+    image: string;
+    aiHint: string;
+}
 
 
 export default function Home() {
+    const [urgentRequests, setUrgentRequests] = useState<UrgentRequest[]>([]);
+    const [topDonors, setTopDonors] = useState<TopDonor[]>([]);
+    const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+    useEffect(() => {
+        const urgentRequestsQuery = query(collection(db, 'bloodRequests'), where('status', '==', 'জরুরী'), limit(3));
+        const topDonorsQuery = query(collection(db, 'donors'), orderBy('totalDonations', 'desc'), limit(4));
+        const blogPostsQuery = query(collection(db, 'blogPosts'), limit(3));
+        const testimonialsQuery = query(collection(db, 'testimonials'), limit(3));
+
+        const unsubUrgent = onSnapshot(urgentRequestsQuery, snapshot => {
+            setUrgentRequests(snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    // Convert Firestore Timestamp to readable string if needed
+                    postedTime: data.postedTime?.toDate ? new Date(data.postedTime.toDate()).toLocaleTimeString('bn-BD') : 'কিছুক্ষণ আগে'
+                } as UrgentRequest;
+            }));
+        });
+
+        const unsubDonors = onSnapshot(topDonorsQuery, snapshot => {
+            setTopDonors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TopDonor)));
+        });
+
+        const unsubBlogs = onSnapshot(blogPostsQuery, snapshot => {
+            setBlogPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+        });
+
+        const unsubTestimonials = onSnapshot(testimonialsQuery, snapshot => {
+            setTestimonials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial)));
+        });
+
+        return () => {
+            unsubUrgent();
+            unsubDonors();
+            unsubBlogs();
+            unsubTestimonials();
+        }
+    }, []);
+
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-primary/10">
@@ -166,7 +249,7 @@ export default function Home() {
             {topDonors.map((donor) => (
                <Card key={donor.id} className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
                 <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
-                  <AvatarImage src={donor.image} alt={donor.name} data-ai-hint="profile picture" />
+                  <AvatarImage src={donor.image || 'https://placehold.co/96x96.png'} alt={donor.name} data-ai-hint="profile picture" />
                   <AvatarFallback>{donor.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <h3 className="text-xl font-bold font-headline">{donor.name}</h3>
@@ -259,7 +342,7 @@ export default function Home() {
             {testimonials.map((testimonial) => (
               <Card key={testimonial.id} className="text-center p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center border-b-4 border-primary">
                 <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
-                  <AvatarImage src={testimonial.image} alt={testimonial.name} data-ai-hint={testimonial.aiHint} />
+                  <AvatarImage src={testimonial.image || 'https://placehold.co/96x96.png'} alt={testimonial.name} data-ai-hint={testimonial.aiHint} />
                   <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <CardContent className="flex-grow">
@@ -317,11 +400,11 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {blogPosts.slice(0, 3).map((post) => (
+            {blogPosts.map((post) => (
               <Card key={post.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-background">
                 <Link href={`/blog/${post.slug}`}>
                   <Image
-                    src={post.image}
+                    src={post.image || 'https://placehold.co/400x225.png'}
                     alt={post.title}
                     width={400}
                     height={225}

@@ -1,3 +1,5 @@
+'use client';
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,13 +16,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { donors } from "@/lib/placeholder-data";
 import { Droplet, MapPin, Search, UserCheck, UserX } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+
+interface Donor {
+    id: string;
+    name: string;
+    bloodType: string;
+    division: string;
+    district: string;
+    upazila: string;
+    available: boolean;
+}
 
 export default function DonorsPage() {
+  const [donors, setDonors] = useState<Donor[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "donors"), (snapshot) => {
+        const donorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Donor));
+        setDonors(donorsData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="container py-12 md:py-16">
       <div className="text-center mb-12">

@@ -1,18 +1,49 @@
+'use client';
+import { useState, useEffect } from 'react';
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { blogPosts } from "@/lib/placeholder-data";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
-export async function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
+interface Post {
+    id: string;
+    title: string;
+    author: string;
+    date: string;
+    image: string;
+    aiHint: string;
+    content: string;
+    excerpt: string;
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = blogPosts.find((p) => p.slug === params.slug);
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+        if (params.slug) {
+            const q = query(collection(db, "blogPosts"), where("slug", "==", params.slug), limit(1));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const doc = querySnapshot.docs[0];
+                setPost({ id: doc.id, ...doc.data() } as Post);
+            } else {
+                setPost(null);
+            }
+        }
+        setLoading(false);
+    }
+    fetchPost();
+  }, [params.slug]);
+
+
+  if (loading) {
+      return <div className="container py-12 md:py-16 text-center">পোস্ট লোড হচ্ছে...</div>
+  }
 
   if (!post) {
     notFound();

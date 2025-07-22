@@ -1,3 +1,5 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -7,9 +9,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { blogPosts } from "@/lib/placeholder-data";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+
+interface BlogPost {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string;
+    author: string;
+    date: string; // Should be a timestamp in Firestore
+    image: string;
+    aiHint: string;
+}
 
 export default function BlogPage() {
+    const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'blogPosts'), (snapshot) => {
+            setBlogPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+        });
+        return () => unsubscribe();
+    }, []);
+
   return (
     <div className="container py-12 md:py-16">
       <div className="text-center mb-12">

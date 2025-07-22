@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -8,10 +11,34 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { bloodRequests } from "@/lib/placeholder-data";
 import { Droplet, MapPin, PlusCircle } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+
+interface BloodRequest {
+    id: string;
+    patientName: string;
+    bloodType: string;
+    location: string;
+    division: string;
+    district: string;
+    upazila: string;
+    status: 'জরুরী' | 'সক্রিয়';
+}
 
 export default function RequestsPage() {
+    const [requests, setRequests] = useState<BloodRequest[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, "bloodRequests"), (snapshot) => {
+            const requestsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BloodRequest));
+            setRequests(requestsData);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+
   return (
     <div className="container py-12 md:py-16">
       <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
@@ -27,7 +54,7 @@ export default function RequestsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bloodRequests.map((request) => (
+        {requests.map((request) => (
           <Card key={request.id} className="shadow-md hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
               <div className="flex justify-between items-start">
