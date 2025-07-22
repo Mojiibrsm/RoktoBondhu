@@ -42,22 +42,60 @@ import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   fullName: z.string().min(1, { message: "পুরো নাম आवश्यक।" }),
-  email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
+  email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }).optional().or(z.literal('')),
   phoneNumber: z.string().min(1, { message: "ফোন নম্বর आवश्यक।" }),
   password: z.string().min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" }),
   dateOfBirth: z.date({ required_error: "জন্ম তারিখ আবশ্যক।" }),
   gender: z.string({ required_error: "লিঙ্গ নির্বাচন করুন।" }),
   bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
   lastDonationDate: z.date().optional(),
+  totalDonations: z.coerce.number().optional(),
   division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
   district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
-  upazila: z.string().min(1, { message: "উপজেলা/এলাকা লিখুন।" }),
+  upazila: z.string({ required_error: "উপজেলা নির্বাচন করুন।" }),
   availableToDonate: z.boolean().default(true),
 });
+
+const divisions = [
+    { name: 'ঢাকা' },
+    { name: 'চট্টগ্রাম' },
+    { name: 'রাজশাহী' },
+    { name: 'খুলনা' },
+    { name: 'বরিশাল' },
+    { name: 'সিলেট' },
+    { name: 'রংপুর' },
+    { name: 'ময়মনসিংহ' },
+];
+
+const districts: { [key: string]: string[] } = {
+    'ঢাকা': ['ঢাকা', 'গাজীপুর', 'নারায়ণগঞ্জ', 'নরসিংদী', 'মানিকগঞ্জ', 'মুন্সিগঞ্জ', 'ফরিদপুর', 'গোপালগঞ্জ', 'মাদারীপুর', 'রাজবাড়ী', 'শরীয়তপুর', 'কিশোরগঞ্জ', 'টাঙ্গাইল'],
+    'চট্টগ্রাম': ['চট্টগ্রাম', 'কক্সবাজার', 'বান্দরবান', 'রাঙ্গামাটি', 'খাগড়াছড়ি', 'কুমিল্লা', 'ব্রাহ্মণবাড়িয়া', 'চাঁদপুর', 'লক্ষ্মীপুর', 'নোয়াখালী', 'ফেনী'],
+    'রাজশাহী': ['রাজশাহী', 'বগুড়া', 'পাবনা', 'সিরাজগঞ্জ', 'নওগাঁ', 'নাটোর', 'চাঁপাইনবাবগঞ্জ', 'জয়পুরহাট'],
+    'খুলনা': ['খুলনা', 'যশোর', 'সাতক্ষীরা', 'বাগেরহাট', 'নড়াইল', 'মাগুরা', 'ঝিনাইদহ', 'কুষ্টিয়া', 'চুয়াডাঙ্গা', 'মেহেরপুর'],
+    'বরিশাল': ['বরিশাল', 'পটুয়াখালী', 'ভোলা', 'পিরোজপুর', 'বরগুনা', 'ঝালকাঠি'],
+    'সিলেট': ['সিলেট', 'সুনামগঞ্জ', 'হবিগঞ্জ', 'মৌলভীবাজার'],
+    'রংপুর': ['রংপুর', 'দিনাজপুর', 'গাইবান্ধা', 'কুড়িগ্রাম', 'লালমনিরহাট', 'নীলফামারী', 'পঞ্চগড়', 'ঠাকুরগাঁও'],
+    'ময়মনসিংহ': ['ময়মনসিংহ', 'জামালপুর', 'শেরপুর', 'নেত্রকোনা'],
+};
+
+const upazilas: { [key: string]: string[] } = {
+    'ঢাকা': ['রমনা', 'মতিঝিল', 'ধানমন্ডি', 'মোহাম্মদপুর', 'উত্তরা', 'গুলশান'],
+    'চট্টগ্রাম': ['কোতোয়ালী', 'পাঁচলাইশ', 'ডবলমুরিং', 'চান্দগাঁও', 'হালিশহর', 'খুলশী'],
+    'রাজশাহী': ['বোয়ালিয়া', 'শাহমখদুম', 'মতিহার', 'রাজপাড়া'],
+    'খুলনা': ['খুলনা সদর', 'সোনাডাঙ্গা', 'দৌলতপুর'],
+    'সিলেট': ['সিলেট সদর', 'দক্ষিণ সুরমা', 'শাহপরাণ'],
+    'বরিশাল': ['বরিশাল সদর', 'বন্দর'],
+    'রংপুর': ['রংপুর সদর', 'তাজহাট'],
+    'ময়মনসিংহ': ['ময়মনসিংহ সদর', 'ত্রিশাল'],
+};
+
 
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
+    const [selectedDivision, setSelectedDivision] = useState<string>('');
+    const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,7 +104,6 @@ export default function RegisterPage() {
             email: "",
             phoneNumber: "",
             password: "",
-            upazila: "",
             availableToDonate: true,
         },
     });
@@ -84,6 +121,9 @@ export default function RegisterPage() {
             form.reset();
         }, 2000);
     }
+
+    const currentDivision = form.watch("division");
+    const currentDistrict = form.watch("district");
 
   return (
     <div className="flex items-center justify-center py-12">
@@ -116,7 +156,7 @@ export default function RegisterPage() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>ইমেল</FormLabel>
+                                    <FormLabel>ইমেল (ঐচ্ছিক)</FormLabel>
                                     <FormControl>
                                         <Input type="email" placeholder="m@example.com" {...field} />
                                     </FormControl>
@@ -290,6 +330,23 @@ export default function RegisterPage() {
                                 )}
                              />
                         </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="totalDonations"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>মোট রক্তদান (ঐচ্ছিক)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="যেমন, ৫" {...field} onChange={event => field.onChange(+event.target.value)} />
+                                    </FormControl>
+                                    <FormDescription>আপনি মোট কতবার রক্তদান করেছেন?</FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         
                         <div className="grid md:grid-cols-3 gap-6">
                              <FormField
@@ -298,15 +355,18 @@ export default function RegisterPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>বিভাগ</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.setValue('district', '');
+                                        form.setValue('upazila', '');
+                                    }} defaultValue={field.value}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="বিভাগ নির্বাচন করুন" />
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="Dhaka">ঢাকা</SelectItem>
-                                            <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                                            {divisions.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -319,16 +379,17 @@ export default function RegisterPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>জেলা</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.setValue('upazila', '');
+                                    }} value={field.value} disabled={!currentDivision}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="জেলা নির্বাচন করুন" />
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="Dhaka">ঢাকা</SelectItem>
-                                            <SelectItem value="Gazipur">গাজীপুর</SelectItem>
-                                            <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                                            {currentDivision && districts[currentDivision] && districts[currentDivision].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -341,9 +402,16 @@ export default function RegisterPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>উপজেলা / এলাকা</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="আপনার এলাকা" {...field} />
-                                    </FormControl>
+                                    <Select onValueChange={field.onChange} value={field.value} disabled={!currentDistrict}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="উপজেলা নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                             {currentDistrict && upazilas[currentDistrict] && upazilas[currentDistrict].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                     </FormItem>
                                 )}
