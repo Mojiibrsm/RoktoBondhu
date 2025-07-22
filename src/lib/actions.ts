@@ -241,6 +241,10 @@ const settingsSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, { message: 'সঠিক হেক্স কোড লিখুন (যেমন, #A92116)।' }),
   metaTitle: z.string().min(1, { message: 'মেটা টাইটেল আবশ্যক।' }),
   metaDescription: z.string().min(1, { message: 'মেটা বর্ণনা আবশ্যক।' }),
+  minimumAge: z.coerce.number().min(16, { message: 'বয়স কমপক্ষে ১৬ হতে হবে।' }),
+  donationGap: z.coerce.number().min(30, { message: 'ব্যবধান কমপক্ষে ৩০ দিন হতে হবে।' }),
+  bloodTypes: z.string().min(1, { message: 'রক্তের গ্রুপের তালিকা আবশ্যক।' }),
+  eligibilityRules: z.string().min(1, { message: 'যোগ্যতার নিয়মাবলী আবশ্যক।' }),
 });
 
 

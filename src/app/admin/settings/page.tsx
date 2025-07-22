@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, FileUp, Palette, Settings, Brush, Search as SearchIcon } from 'lucide-react';
+import { Loader2, Save, FileUp, Palette, Settings, Brush, Search as SearchIcon, HeartHandshake } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { handleUpdateSettings } from '@/lib/actions';
 
@@ -39,6 +39,10 @@ const currentSettings = {
     primaryColor: '#A92116',
     metaTitle: 'রক্তবন্ধু - রক্ত দিন, জীবন বাঁচান',
     metaDescription: 'বাংলাদেশের সবচেয়ে বড় অনলাইন রক্তদাতা নেটওয়ার্ক। জরুরী রক্তের প্রয়োজনে ডোনার খুঁজুন বা রক্তদাতা হিসেবে নিবন্ধন করুন।',
+    minimumAge: 18,
+    donationGap: 90,
+    bloodTypes: 'A+, A-, B+, B-, O+, O-, AB+, AB-',
+    eligibilityRules: 'আপনাকে অবশ্যই সুস্থ থাকতে হবে। আপনার ওজন কমপক্ষে ৫০ কেজি হতে হবে। গত ৩ মাসে রক্তদান করেননি এমন ব্যক্তিরাই রক্ত দিতে পারবেন।',
 };
 
 
@@ -49,6 +53,10 @@ const formSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, { message: 'সঠিক হেক্স কোড লিখুন (যেমন, #A92116)।' }),
   metaTitle: z.string().min(1, { message: 'মেটা টাইটেল আবশ্যক।' }),
   metaDescription: z.string().min(1, { message: 'মেটা বর্ণনা আবশ্যক।' }),
+  minimumAge: z.coerce.number().min(16, { message: 'বয়স কমপক্ষে ১৬ হতে হবে।' }),
+  donationGap: z.coerce.number().min(30, { message: 'ব্যবধান কমপক্ষে ৩০ দিন হতে হবে।' }),
+  bloodTypes: z.string().min(1, { message: 'রক্তের গ্রুপের তালিকা আবশ্যক।' }),
+  eligibilityRules: z.string().min(1, { message: 'যোগ্যতার নিয়মাবলী আবশ্যক।' }),
 });
 
 
@@ -65,6 +73,10 @@ export default function AdminSettingsPage() {
         primaryColor: currentSettings.primaryColor,
         metaTitle: currentSettings.metaTitle,
         metaDescription: currentSettings.metaDescription,
+        minimumAge: currentSettings.minimumAge,
+        donationGap: currentSettings.donationGap,
+        bloodTypes: currentSettings.bloodTypes,
+        eligibilityRules: currentSettings.eligibilityRules,
     },
   });
 
@@ -186,6 +198,65 @@ export default function AdminSettingsPage() {
                     />
                 </CardContent>
             </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-headline text-xl"><HeartHandshake className="w-5 h-5" />রক্তদান সম্পর্কিত সেটিংস</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <FormField
+                            control={form.control}
+                            name="minimumAge"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>ন্যূনতম বয়সসীমা</FormLabel>
+                                    <FormControl><Input type="number" placeholder="18" {...field} /></FormControl>
+                                    <FormDescription>রক্তদাতাদের জন্য সর্বনিম্ন বয়স।</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                        )}/>
+                        <FormField
+                            control={form.control}
+                            name="donationGap"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>দান করার ব্যবধান (দিন)</FormLabel>
+                                    <FormControl><Input type="number" placeholder="90" {...field} /></FormControl>
+                                    <FormDescription>একবার রক্তদানের পর কতদিন অপেক্ষা করতে হবে।</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                        )}/>
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="bloodTypes"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>রক্তের গ্রুপের তালিকা</FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder="A+, A-, B+, B-, O+, O-, AB+, AB-" {...field} />
+                                </FormControl>
+                                <FormDescription>কমা (,) দিয়ে আলাদা করে রক্তের গ্রুপগুলো লিখুন।</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                    )}/>
+                    <FormField
+                        control={form.control}
+                        name="eligibilityRules"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>যোগ্যতার নিয়মাবলী সম্পাদক</FormLabel>
+                                <FormControl>
+                                    <Textarea className="min-h-[150px]" placeholder="রক্তদানের জন্য যোগ্যতার নিয়মাবলী লিখুন..." {...field} />
+                                </FormControl>
+                                <FormDescription>এই নিয়মগুলো সাধারণ জিজ্ঞাসা (FAQ) বা যোগ্যতার পৃষ্ঠায় দেখানো যেতে পারে।</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                    )}/>
+                </CardContent>
+            </Card>
+
 
              <Card>
                 <CardHeader>
