@@ -12,6 +12,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
 } from "@/components/ui/select"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
