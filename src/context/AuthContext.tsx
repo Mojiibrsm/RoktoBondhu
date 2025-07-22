@@ -52,6 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         } catch (error) {
             console.error("Error fetching user document:", error);
+            // If there's an error (e.g., permissions), log out the user
+            logout();
         }
         return null;
     }, []);
@@ -62,13 +64,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 const parsedUser: UserDocument = JSON.parse(storedUser);
-                fetchUser(parsedUser.uid).finally(() => setLoading(false));
+                if (parsedUser?.uid) {
+                    fetchUser(parsedUser.uid).finally(() => setLoading(false));
+                } else {
+                     setLoading(false);
+                }
             } else {
                 setLoading(false);
             }
         } catch (error) {
             console.error("Failed to parse user from localStorage", error);
             setLoading(false);
+            localStorage.removeItem('user');
         }
     }, [fetchUser]);
 
@@ -97,10 +104,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const signup = async (data: any): Promise<UserDocument | null> => {
         setLoading(true);
         try {
-             const { password, ...userData } = data; // Separate password from other data
+            const { password, ...userData } = data; // Separate password from other data
             // In a real app, password should be hashed before storing.
             // Storing plain text passwords is a major security risk.
             const storedData = { ...userData, password: password };
+
+            // Firestore doesn't allow `undefined` values. Convert them to `null`.
+            if (storedData.lastDonation === undefined) {
+                storedData.lastDonation = null;
+            }
 
             const userRef = doc(collection(db, "donors"));
             await setDoc(userRef, storedData);
@@ -128,13 +140,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const value = useMemo(() => ({
         user,
-        userDoc: user, // for compatibility
         loading,
         login,
         signup,
         logout,
         reloadUser,
-    }), [user, loading, login, signup, logout, reloadUser]);
+    }), [user, loading]);
 
     return (
         <AuthContext.Provider value={value}>
