@@ -6,6 +6,13 @@ import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
@@ -15,6 +22,13 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  const [month, setMonth] = React.useState(props.month || new Date());
+
+  const handleMonthChange = (month: Date) => {
+    setMonth(month);
+    props.onMonthChange?.(month);
+  };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -23,7 +37,7 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
+        caption_label: "text-sm font-medium hidden",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
@@ -51,16 +65,55 @@ function Calendar({
         day_range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
+        caption_dropdowns: "flex gap-2",
         ...classNames,
       }}
+      month={month}
+      onMonthChange={handleMonthChange}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
-        ),
+        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
+        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        Dropdown: ({ value, onChange, children, ...props }) => {
+          const options = React.Children.toArray(
+            children
+          ) as React.ReactElement<React.HTMLProps<HTMLOptionElement>>[]
+          const selected = options.find((child) => child.props.value === value)
+          const handleChange = (value: string) => {
+            const changeEvent = {
+              target: { value },
+            } as React.ChangeEvent<HTMLSelectElement>
+            onChange?.(changeEvent)
+          }
+          return (
+            <Select
+              value={value?.toString()}
+              onValueChange={(value) => {
+                handleChange(value)
+              }}
+            >
+              <SelectTrigger className="w-[fit-content] h-auto p-1.5 text-xs">
+                <SelectValue>{selected?.props?.children}</SelectValue>
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectScrollUpButton />
+                {options.map((option, id: number) => (
+                  <SelectItem
+                    key={`${option.props.value}-${id}`}
+                    value={option.props.value?.toString() ?? ""}
+                    className="text-xs"
+                  >
+                    {option.props.children}
+                  </SelectItem>
+                ))}
+                <SelectScrollDownButton />
+              </SelectContent>
+            </Select>
+          )
+        },
       }}
+      captionLayout="dropdown-buttons"
+      fromYear={1950}
+      toYear={new Date().getFullYear()}
       {...props}
     />
   )
