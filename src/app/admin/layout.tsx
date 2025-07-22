@@ -77,7 +77,7 @@ import { useEffect } from "react";
 
     // Placeholder for pages that are not yet created to avoid 404s.
     // You can remove items from here as you create the pages.
-    const placeholderPages = ["/admin/data", "/admin/settings"];
+    const placeholderPages = ["/admin/settings"];
 
 
     return (
