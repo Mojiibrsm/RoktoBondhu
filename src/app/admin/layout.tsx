@@ -115,7 +115,7 @@ import { useEffect } from "react";
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
+                            <SidebarMenuButton href="/admin/manage">
                                 <UserCog />
                                 অ্যাডমিন ম্যানেজ
                             </SidebarMenuButton>

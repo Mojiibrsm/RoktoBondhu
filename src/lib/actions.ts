@@ -5,7 +5,7 @@ import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-fa
 import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
 import { db } from './firebase-admin'; // Using admin SDK for backend operations
 import { demoData } from './placeholder-data';
-import { collection, writeBatch, doc } from 'firebase/firestore';
+import { collection, writeBatch, doc, updateDoc } from 'firebase/firestore';
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -76,5 +76,19 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
         console.error(`Error seeding collection ${collectionName}:`, error);
         const errorMessage = error instanceof Error ? error.message : `An unknown error occurred.`;
         return { success: false, message: `Failed to seed collection "${collectionName}". Reason: ${errorMessage}` };
+    }
+}
+
+export async function updateUserRole(uid: string, role: 'user' | 'admin') {
+    try {
+        console.log(`Attempting to update role for UID: ${uid} to ${role}`);
+        const userRef = doc(db, 'donors', uid);
+        await updateDoc(userRef, { role: role });
+        console.log(`Successfully updated role for UID: ${uid}`);
+        return { success: true, message: 'User role updated successfully.' };
+    } catch (error) {
+        console.error(`Error updating role for UID ${uid}:`, error);
+        const errorMessage = error instanceof Error ? error.message : `An unknown error occurred.`;
+        return { success: false, message: `Failed to update user role. Reason: ${errorMessage}` };
     }
 }
