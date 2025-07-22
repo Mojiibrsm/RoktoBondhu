@@ -11,7 +11,8 @@ import {
     FileLock,
     FileDown,
     DatabaseBackup,
-    Download
+    Download,
+    FileText,
   } from "lucide-react"
 import Link from "next/link";
   
@@ -39,6 +40,18 @@ import Link from "next/link";
       description: "সমস্ত রক্তের অনুরোধ একটি CSV ফাইলে এক্সপোর্ট করুন।",
       icon: Download,
       href: "#", // Placeholder
+    },
+    {
+        title: "Export Donors (PDF)",
+        description: "সমস্ত ডোনারের তালিকা একটি PDF ফাইলে এক্সপোর্ট করুন।",
+        icon: FileText,
+        href: "#", // Placeholder
+    },
+    {
+        title: "Export Requests (PDF)",
+        description: "সমস্ত রক্তের অনুরোধ একটি PDF ফাইলে এক্সপোর্ট করুন।",
+        icon: FileText,
+        href: "#", // Placeholder
     },
     {
       title: "Create Database Backup",
