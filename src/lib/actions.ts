@@ -7,6 +7,9 @@ import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
 import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas/notifications';
 import { demoData } from './placeholder-data';
 import { getFirestore } from 'firebase-admin/firestore';
+import { config } from 'dotenv';
+
+config(); // Load environment variables from .env file
 
 // Helper function to initialize admin and get DB instance
 function getAdminDb() {
