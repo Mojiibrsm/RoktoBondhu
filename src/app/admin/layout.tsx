@@ -77,7 +77,7 @@ import { useEffect } from "react";
 
     // Placeholder for pages that are not yet created to avoid 404s.
     // You can remove items from here as you create the pages.
-    const placeholderPages = ["/admin/settings"];
+    const placeholderPages: string[] = [];
 
 
     return (
@@ -103,7 +103,7 @@ import { useEffect } from "react";
                                     asChild 
                                     isActive={pathname === item.href}
                                 >
-                                    <Link href={item.href}>
+                                    <Link href={placeholderPages.includes(item.href) ? '#' : item.href}>
                                         <item.icon />
                                         {item.label}
                                     </Link>
