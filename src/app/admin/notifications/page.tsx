@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -20,30 +19,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SendNotificationInputSchema, SendNotificationInput } from '@/ai/schemas/notifications';
 
-
-const formSchema = z.object({
-  channel: z.enum(['email', 'sms']),
-  target: z.string().min(1, { message: 'অনুগ্রহ করে একটি টার্গেট নির্দিষ্ট করুন।' }),
-  message: z.string().min(10, {
-    message: 'বার্তাটি কমপক্ষে ১০ অক্ষরের হতে হবে।',
-  }),
-});
 
 export default function AdminNotificationsPage() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SendNotificationInput>({
+    resolver: zodResolver(SendNotificationInputSchema),
     defaultValues: {
       channel: 'email',
-      target: '',
+      targetType: 'all',
+      targetValue: '',
       message: '',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const targetType = form.watch('targetType');
+
+  async function onSubmit(values: SendNotificationInput) {
     setLoading(true);
     try {
       const response = await sendNotificationOnServer(values);
@@ -75,44 +70,100 @@ export default function AdminNotificationsPage() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <CardContent className="space-y-4">
-                            <FormField
-                            control={form.control}
-                            name="channel"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>চ্যানেল</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                control={form.control}
+                                name="channel"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>চ্যানেল</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="চ্যানেল নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                        <SelectItem value="email">ইমেল</SelectItem>
+                                        <SelectItem value="sms">এসএমএস</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                                <FormField
+                                control={form.control}
+                                name="targetType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>টার্গেট</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="টার্গেট নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="all">সকল ব্যবহারকারী</SelectItem>
+                                            <SelectItem value="bloodGroup">রক্তের গ্রুপ অনুযায়ী</SelectItem>
+                                            <SelectItem value="location">এলাকা অনুযায়ী</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            </div>
+
+                            {targetType === 'bloodGroup' && (
+                                <FormField
+                                control={form.control}
+                                name="targetValue"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>রক্তের গ্রুপ</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="রক্তের গ্রুপ নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="A+">A+</SelectItem>
+                                            <SelectItem value="A-">A-</SelectItem>
+                                            <SelectItem value="B+">B+</SelectItem>
+                                            <SelectItem value="B-">B-</SelectItem>
+                                            <SelectItem value="O+">O+</SelectItem>
+                                            <SelectItem value="O-">O-</SelectItem>
+                                            <SelectItem value="AB+">AB+</SelectItem>
+                                            <SelectItem value="AB-">AB-</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            )}
+                            {targetType === 'location' && (
+                                <FormField
+                                control={form.control}
+                                name="targetValue"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>এলাকা</FormLabel>
                                     <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="চ্যানেল নির্বাচন করুন" />
-                                    </SelectTrigger>
+                                        <Input
+                                        placeholder="যেমন, ঢাকা"
+                                        {...field}
+                                        />
                                     </FormControl>
-                                    <SelectContent>
-                                    <SelectItem value="email">ইমেল</SelectItem>
-                                    <SelectItem value="sms">এসএমএস</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
                             )}
-                            />
-                            <FormField
-                            control={form.control}
-                            name="target"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>টার্গেট</FormLabel>
-                                <FormControl>
-                                    <Input
-                                    placeholder="যেমন, ঢাকা, O+"
-                                    {...field}
-                                    />
-                                </FormControl>
-                                 <p className="text-sm text-muted-foreground">কাদের কাছে পাঠাতে চান তা নির্দিষ্ট করুন (যেমন, এলাকা, রক্তের গ্রুপ)।</p>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
+
                             <FormField
                             control={form.control}
                             name="message"

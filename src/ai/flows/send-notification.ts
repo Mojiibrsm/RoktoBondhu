@@ -22,12 +22,20 @@ const sendNotificationFlow = ai.defineFlow(
     outputSchema: SendNotificationOutputSchema,
   },
   async (input) => {
+    let targetDescription = "সকল ব্যবহারকারী";
+    if (input.targetType === 'bloodGroup') {
+        targetDescription = `রক্তের গ্রুপ "${input.targetValue}" এর সকল ব্যবহারকারী`;
+    } else if (input.targetType === 'location') {
+        targetDescription = `এলাকা "${input.targetValue}" এর সকল ব্যবহারকারী`;
+    }
+
+
     console.log(`Simulating sending a notification via ${input.channel}`);
-    console.log(`Target: ${input.target}`);
+    console.log(`Target: ${targetDescription}`);
     console.log(`Message: ${input.message}`);
 
     // In a real-world application, you would integrate with an email/SMS API here.
-    // For example, using Twilio for SMS or SendGrid for email.
+    // For example, using Twilio for SMS or SendGrid for email, and querying the database for users matching the target criteria.
     // Since we don't have credentials, we'll just simulate a successful response.
 
     const simulatedMessageId = `msg_${Date.now()}`;
@@ -36,7 +44,7 @@ const sendNotificationFlow = ai.defineFlow(
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     return {
-      status: `নোটিফিকেশন সফলভাবে "${input.target}" এর কাছে পাঠানো হয়েছে।`,
+      status: `নোটিফিকেশন সফলভাবে "${targetDescription}" এর কাছে পাঠানো হয়েছে।`,
       messageId: simulatedMessageId,
     };
   }
