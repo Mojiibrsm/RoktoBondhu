@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
             ...config.resolve.fallback,
             'async_hooks': false,
             'fs': false,
+            'tls': false,
+            'net': false,
+            'dns': false,
         }
     }
     return config
