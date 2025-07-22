@@ -34,8 +34,10 @@ interface Donor {
 
 // This is a server component, so we can't use hooks like useToast directly.
 // We'll add a simple placeholder for actions for now.
-async function handleAction(action: string, donorName: string) {
+async function handleAction(formData: FormData) {
     'use server';
+    const action = formData.get('action');
+    const donorName = formData.get('donorName');
     console.log(`Action "${action}" triggered for donor "${donorName}". Feature not yet implemented.`);
     // In a real app, you would implement the logic for verify, edit, delete here.
 }
@@ -104,18 +106,24 @@ export default async function AdminDonorsPage() {
                     {donor.available ? 'উপলব্ধ' : 'অনুপলব্ধ'}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right space-x-2">
-                    <form action={async () => { await handleAction('Verify', donor.name)}}>
+                <TableCell className="text-right flex items-center justify-end space-x-2">
+                    <form action={handleAction}>
+                      <input type="hidden" name="action" value="Verify" />
+                      <input type="hidden" name="donorName" value={donor.name} />
                       <Button variant="ghost" size="icon" type="submit">
                           <CheckCircle className="h-4 w-4 text-green-600" />
                       </Button>
                     </form>
-                     <form action={async () => { await handleAction('Edit', donor.name)}}>
+                     <form action={handleAction}>
+                        <input type="hidden" name="action" value="Edit" />
+                        <input type="hidden" name="donorName" value={donor.name} />
                         <Button variant="ghost" size="icon" type="submit">
                             <Edit className="h-4 w-4 text-blue-600" />
                         </Button>
                     </form>
-                    <form action={async () => { await handleAction('Delete', donor.name)}}>
+                    <form action={handleAction}>
+                        <input type="hidden" name="action" value="Delete" />
+                        <input type="hidden" name="donorName" value={donor.name} />
                         <Button variant="ghost" size="icon" type="submit">
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
