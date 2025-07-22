@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList } from 'lucide-react';
+import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList, Github, Linkedin, Globe } from 'lucide-react';
 import { topDonors, urgentRequests, blogPosts, testimonials } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -275,8 +275,40 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <section id="director-message" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <div className="container px-4 md:px-6">
+          <div className="mx-auto max-w-4xl">
+            <Card className="p-8 shadow-lg">
+              <div className="grid md:grid-cols-3 gap-8 items-center">
+                <div className="md:col-span-1 flex justify-center">
+                  <Avatar className="w-40 h-40 border-4 border-primary">
+                    <AvatarImage src="https://placehold.co/160x160.png" alt="Mujibur Rahman" data-ai-hint="male portrait" />
+                    <AvatarFallback>MR</AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="md:col-span-2 space-y-4">
+                  <h2 className="text-3xl font-bold font-headline text-primary">পরিচালকের বার্তা</h2>
+                  <blockquote className="text-lg italic text-foreground/80 border-l-4 border-primary pl-4">
+                    "রক্তবন্ধু একটি অলাভজনক উদ্যোগ যা রক্তদাতা এবং গ্রহীতাদের মধ্যে একটি সেতুবন্ধন তৈরির লক্ষ্যে কাজ করে। প্রযুক্তি ব্যবহার করে জীবন বাঁচানোর এই যাত্রায় আমাদের সঙ্গী হওয়ার জন্য আপনাকে ধন্যবাদ।"
+                  </blockquote>
+                  <p className="text-right font-semibold">- মুজিবুর রহমান, প্রতিষ্ঠাতা</p>
+                  <div className="flex justify-end items-center gap-4 text-primary">
+                    <a href="#" aria-label="Facebook" className="hover:text-accent">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                    <a href="#" aria-label="LinkedIn" className="hover:text-accent"><Linkedin className="h-6 w-6" /></a>
+                    <a href="#" aria-label="GitHub" className="hover:text-accent"><Github className="h-6 w-6" /></a>
+                    <a href="#" aria-label="Website" className="hover:text-accent"><Globe className="h-6 w-6" /></a>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
       
-      <section id="blog" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+      <section id="blog" className="w-full py-12 md:py-24 lg:py-32 bg-background">
         <div className="container px-4 md:px-6">
           <div className="space-y-4 mb-8">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary text-center">আমাদের ব্লগ থেকে</h2>
