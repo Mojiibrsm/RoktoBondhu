@@ -43,19 +43,27 @@ export default function AdminDonorsPage() {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'donors'), (snapshot) => {
-      const donorsData = snapshot.docs.map(
-        (doc) =>
-          ({
-            uid: doc.id,
-            ...doc.data(),
-          } as Donor)
-      );
+      const donorsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          uid: doc.id,
+        } as Donor;
+      });
       setDonors(donorsData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching donors: ", error);
+      toast({
+        variant: "destructive",
+        title: "ত্রুটি",
+        description: "ডোনারদের তালিকা লোড করতে ব্যর্থ হয়েছে।",
+      });
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   const handleAction = (action: string, donorName: string) => {
     toast({
