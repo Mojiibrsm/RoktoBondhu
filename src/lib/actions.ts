@@ -162,6 +162,29 @@ export async function getBloodRequests() {
     return requests;
   }
 
+export async function deleteBloodRequest(id: string) {
+    if (!db) {
+      throw new Error('Firestore admin is not initialized.');
+    }
+    await db.collection('bloodRequests').doc(id).delete();
+}
+
+export async function updateBloodRequestStatus(id: string, status: string) {
+    if (!db) {
+      throw new Error('Firestore admin is not initialized.');
+    }
+    await db.collection('bloodRequests').doc(id).update({ status });
+}
+
+export async function editBloodRequest(id: string, data: any) {
+    if (!db) {
+      throw new Error('Firestore admin is not initialized.');
+    }
+    // This is a placeholder. In a real app, you'd have proper validation.
+    await db.collection('bloodRequests').doc(id).update(data);
+}
+
+
 export async function getBlogPosts() {
     if (!db) {
       throw new Error('Firestore admin is not initialized.');

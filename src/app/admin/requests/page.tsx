@@ -1,5 +1,5 @@
 // src/app/admin/requests/page.tsx
-import { getBloodRequests } from '@/lib/actions';
+import { getBloodRequests, deleteBloodRequest, updateBloodRequestStatus } from '@/lib/actions';
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Edit, CheckCircle, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { revalidatePath } from 'next/cache';
 
 interface BloodRequest {
   id: string;
@@ -28,7 +29,7 @@ interface BloodRequest {
   division: string;
   district: string;
   upazila: string;
-  status: 'জরুরী' | 'সক্রিয়';
+  status: 'জরুরী' | 'সক্রিয়' | 'সম্পন্ন হয়েছে';
   postedTime: string;
   reason: string;
 }
@@ -38,9 +39,30 @@ interface BloodRequest {
 async function handleAction(formData: FormData) {
     'use server';
     const action = formData.get('action');
-    const requestId = formData.get('requestId');
-    console.log(`Action "${action}" triggered for request ID "${requestId}". Feature not yet implemented.`);
-    // In a real app, you would implement the logic for approve, edit, delete here.
+    const requestId = formData.get('requestId') as string;
+
+    if (!requestId) {
+        console.error("Request ID is missing.");
+        return;
+    }
+
+    try {
+        if (action === 'Approve') {
+            console.log(`Approving request ID: ${requestId}`);
+            await updateBloodRequestStatus(requestId, 'সম্পন্ন হয়েছে');
+        } else if (action === 'Edit') {
+            // Redirect to an edit page or open a modal in a real app
+            console.log(`Edit action for request ID "${requestId}" needs a UI. Feature not yet implemented.`);
+        } else if (action === 'Delete') {
+            console.log(`Deleting request ID: ${requestId}`);
+            await deleteBloodRequest(requestId);
+        }
+    } catch (error) {
+        console.error(`Failed to perform action "${action}" on request ${requestId}:`, error);
+        // In a real app, you might want to handle this error more gracefully
+    }
+
+    revalidatePath('/admin/requests');
 }
 
 
@@ -104,10 +126,11 @@ export default async function AdminRequestsPage() {
                 <TableCell>{format(new Date(request.postedTime), "PPp")}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={request.status === 'জরুরী' ? 'destructive' : 'default'}
-                    className={
-                      request.status === 'জরুরী' ? 'bg-primary' : ''
-                    }
+                     variant={request.status === 'জরুরী' ? 'destructive' : request.status === 'সম্পন্ন হয়েছে' ? 'default' : 'secondary'}
+                     className={
+                       request.status === 'জরুরী' ? 'bg-red-600 text-white' : 
+                       request.status === 'সম্পন্ন হয়েছে' ? 'bg-green-600 text-white' : ''
+                     }
                   >
                     {request.status}
                   </Badge>
@@ -116,7 +139,7 @@ export default async function AdminRequestsPage() {
                     <form action={handleAction}>
                       <input type="hidden" name="action" value="Approve" />
                       <input type="hidden" name="requestId" value={request.id} />
-                      <Button variant="ghost" size="icon" type="submit" title="অনুমোদন করুন">
+                      <Button variant="ghost" size="icon" type="submit" title="সম্পন্ন হিসাবে চিহ্নিত করুন">
                           <CheckCircle className="h-4 w-4 text-green-600" />
                       </Button>
                     </form>
