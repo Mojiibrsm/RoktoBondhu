@@ -1,10 +1,11 @@
+// src/lib/actions.ts
 'use server';
 
 import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-faq';
 import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
-import { db } from './firebase';
-import { collection, writeBatch, doc } from 'firebase/firestore';
+import { db, auth } from './firebase-admin'; // Switch to admin SDK
 import { demoData } from './placeholder-data';
+import { collection, writeBatch, doc } from 'firebase/firestore';
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -34,6 +35,27 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
   }
 }
 
+async function createAuthUser(uid: string, email: string, pass: string, role: string) {
+    try {
+        await auth.createUser({
+            uid: uid,
+            email: email,
+            password: pass,
+        });
+        await auth.setCustomUserClaims(uid, { role });
+        console.log(`Successfully created auth user: ${email} with role: ${role}`);
+    } catch(error: any) {
+        if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
+            console.log(`Auth user ${email} already exists. Setting custom claims.`);
+            await auth.setCustomUserClaims(uid, { role });
+        } else {
+            console.error(`Error creating auth user ${email}:`, error);
+            throw error;
+        }
+    }
+}
+
+
 export async function seedDatabase(collectionName: keyof typeof demoData) {
     try {
         const batch = writeBatch(db);
@@ -47,7 +69,32 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 
         for (const item of dataToSeed) {
             const docRef = doc(collection(db, collectionName), item.id);
-            batch.set(docRef, item);
+
+            // Handle date conversion if needed
+            const itemWithDates = { ...item };
+            if (item.createdAt && typeof item.createdAt === 'string') {
+                itemWithDates.createdAt = new Date(item.createdAt);
+            }
+             if (item.dateOfBirth && typeof item.dateOfBirth === 'string') {
+                itemWithDates.dateOfBirth = new Date(item.dateOfBirth);
+            }
+             if (item.lastDonation && typeof item.lastDonation === 'string') {
+                itemWithDates.lastDonation = new Date(item.lastDonation);
+            }
+             if (item.postedTime && typeof item.postedTime === 'string') {
+                itemWithDates.postedTime = new Date(item.postedTime);
+            }
+
+
+            batch.set(docRef, itemWithDates);
+
+            // If we are seeding donors, create auth users for them
+            if (collectionName === 'donors') {
+                const { id, email, password, role } = item as any;
+                 if (email && password && role) {
+                    await createAuthUser(id, email, password, role);
+                }
+            }
         }
 
         await batch.commit();
@@ -56,6 +103,7 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
         return { success: true, message: `Collection "${collectionName}" seeded successfully.` };
     } catch (error) {
         console.error(`Error seeding collection ${collectionName}:`, error);
-        return { success: false, message: `Failed to seed collection "${collectionName}".` };
+        const errorMessage = error instanceof Error ? error.message : `An unknown error occurred.`;
+        return { success: false, message: `Failed to seed collection "${collectionName}". Reason: ${errorMessage}` };
     }
 }
