@@ -22,76 +22,108 @@ import { useToast } from '@/hooks/use-toast';
 import { getDonors, getBloodRequests } from '@/lib/actions';
 
 
-const dataFeatures = [
-    {
-        id: "seed",
-        title: "Seed Database",
-        description: "ডাটাবেস এ ডেমো ডেটা যোগ করুন। এটি নতুন ডেটা দিয়ে কালেকশনগুলো পূরণ করবে।",
-        icon: DatabaseZap,
-        href: "/admin/seed",
-    },
-    {
-        id: "rules",
-        title: "Firestore Rules",
-        description: "আপনার Firestore ডাটাবেসের নিরাপত্তা বিধি দেখুন এবং পরিচালনা করুন।",
-        icon: FileLock,
-        href: "/admin/rules",
-    },
-    {
-        id: "export-donors-csv",
-        title: "Export Donors (CSV)",
-        description: "সমস্ত ডোনারের তালিকা একটি CSV ফাইলে এক্সপোর্ট করুন।",
-        icon: FileDown,
-        action: async () => {
-            const donors = await getDonors();
-            console.log("Donors for CSV Export:", donors);
-            // In a real implementation, you would generate a CSV file here.
-        },
-    },
-    {
-        id: "export-requests-csv",
-        title: "Export Requests (CSV)",
-        description: "সমস্ত রক্তের অনুরোধ একটি CSV ফাইলে এক্সপোর্ট করুন।",
-        icon: Download,
-        action: async () => {
-            const requests = await getBloodRequests();
-            console.log("Requests for CSV Export:", requests);
-        },
-    },
-    {
-        id: "export-donors-pdf",
-        title: "Export Donors (PDF)",
-        description: "সমস্ত ডোনারের তালিকা একটি PDF ফাইলে এক্সপোর্ট করুন।",
-        icon: FileText,
-        action: async () => {
-            const donors = await getDonors();
-            console.log("Donors for PDF Export:", donors);
-        },
-    },
-    {
-        id: "export-requests-pdf",
-        title: "Export Requests (PDF)",
-        description: "সমস্ত রক্তের অনুরোধ একটি PDF ফাইলে এক্সপোর্ট করুন।",
-        icon: FileText,
-        action: async () => {
-            const requests = await getBloodRequests();
-            console.log("Requests for PDF Export:", requests);
-        },
-    },
-    {
-        id: "backup",
-        title: "Create Database Backup",
-        description: "সম্পূর্ণ Firestore ডাটাবেসের একটি ব্যাকআপ তৈরি করুন।",
-        icon: DatabaseBackup,
-        action: async () => {
-           console.log("Database backup process started.");
-        },
-    },
-];
+const convertToCSV = (data: any[]) => {
+    if (!data || data.length === 0) {
+        return "";
+    }
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+        headers.join(','), // header row
+        ...data.map(row => 
+            headers.map(fieldName => 
+                JSON.stringify(row[fieldName], (key, value) => 
+                    value === null ? '' : value
+                )
+            ).join(',')
+        )
+    ];
+    return csvRows.join('\r\n');
+};
+
+const downloadCSV = (csvString: string, filename: string) => {
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+};
 
 export default function AdminDataPage() {
     const { toast } = useToast();
     const [loading, setLoading] = useState<string | null>(null);
+
+    const dataFeatures = [
+        {
+            id: "seed",
+            title: "Seed Database",
+            description: "ডাটাবেস এ ডেমো ডেটা যোগ করুন। এটি নতুন ডেটা দিয়ে কালেকশনগুলো পূরণ করবে।",
+            icon: DatabaseZap,
+            href: "/admin/seed",
+        },
+        {
+            id: "rules",
+            title: "Firestore Rules",
+            description: "আপনার Firestore ডাটাবেসের নিরাপত্তা বিধি দেখুন এবং পরিচালনা করুন।",
+            icon: FileLock,
+            href: "/admin/rules",
+        },
+        {
+            id: "export-donors-csv",
+            title: "Export Donors (CSV)",
+            description: "সমস্ত ডোনারের তালিকা একটি CSV ফাইলে এক্সপোর্ট করুন।",
+            icon: FileDown,
+            action: async () => {
+                const donors = await getDonors();
+                const csvData = convertToCSV(donors);
+                downloadCSV(csvData, 'donors.csv');
+            },
+        },
+        {
+            id: "export-requests-csv",
+            title: "Export Requests (CSV)",
+            description: "সমস্ত রক্তের অনুরোধ একটি CSV ফাইলে এক্সপোর্ট করুন।",
+            icon: Download,
+            action: async () => {
+                const requests = await getBloodRequests();
+                const csvData = convertToCSV(requests);
+                downloadCSV(csvData, 'requests.csv');
+            },
+        },
+        {
+            id: "export-donors-pdf",
+            title: "Export Donors (PDF)",
+            description: "সমস্ত ডোনারের তালিকা একটি PDF ফাইলে এক্সপোর্ট করুন।",
+            icon: FileText,
+            action: async () => {
+                console.log("PDF export for donors is not implemented yet.");
+            },
+        },
+        {
+            id: "export-requests-pdf",
+            title: "Export Requests (PDF)",
+            description: "সমস্ত রক্তের অনুরোধ একটি PDF ফাইলে এক্সপোর্ট করুন।",
+            icon: FileText,
+            action: async () => {
+               console.log("PDF export for requests is not implemented yet.");
+            },
+        },
+        {
+            id: "backup",
+            title: "Create Database Backup",
+            description: "সম্পূর্ণ Firestore ডাটাবেসের একটি ব্যাকআপ তৈরি করুন।",
+            icon: DatabaseBackup,
+            action: async () => {
+               console.log("Database backup process started.");
+            },
+        },
+    ];
+
 
     const handleFeatureClick = async (e: React.MouseEvent, feature: (typeof dataFeatures)[0]) => {
         if (!feature.action) return;
@@ -101,10 +133,18 @@ export default function AdminDataPage() {
         
         try {
             await feature.action();
-            toast({
-                title: "কার্যকরী নয়",
-                description: `${feature.title} ফিচারটি শীঘ্রই আসছে। ডেটা কনসোলে লগ করা হয়েছে।`,
-            });
+            if (feature.id.includes('csv')) {
+                 toast({
+                    title: "সফল!",
+                    description: `${feature.title} ফাইল ডাউনলোড শুরু হয়েছে।`,
+                });
+            } else {
+                toast({
+                    title: "কার্যকরী নয়",
+                    description: `${feature.title} ফিচারটি শীঘ্রই আসছে।`,
+                });
+            }
+           
         } catch (error) {
             console.error(`Error during ${feature.title}:`, error);
             toast({
