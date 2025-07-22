@@ -1,43 +1,49 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper function to check if a user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Donors can only be read by anyone, but only updated by the authenticated user or an admin.
+    // New donors can be created by anyone (during signup).
     match /donors/{userId} {
-      // Allow anyone to create a new donor document (register)
+      allow read: if true;
       allow create: if true;
-      // Allow users to read, update, or delete their own document
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth.uid == userId || isAdmin();
+      allow delete: if isAdmin();
     }
 
-    match /donors/{userId} {
-      // Allow admins to read, update, delete any donor document
-      allow read, update, delete: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
-    }
-
-    // Rules for other collections
+    // Public collections that can be read by anyone, but only written to by admins.
     match /blogPosts/{postId} {
       allow read: if true;
-      allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+      allow write: if isAdmin();
     }
-
-    match /bloodRequests/{requestId} {
-      allow read: if true;
-      allow create: if request.auth != null; // Only logged-in users can create requests
-      allow update, delete: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin' || request.auth.uid == resource.data.requesterId;
-    }
-
     match /faqs/{faqId} {
       allow read: if true;
-      allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+      allow write: if isAdmin();
     }
-
     match /teamMembers/{memberId} {
-        allow read: if true;
-        allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+      allow read: if true;
+      allow write: if isAdmin();
     }
-
+    
+    // Collections that can be read by anyone and created by anyone.
+    // Only admins can update or delete.
+    match /bloodRequests/{requestId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
     match /testimonials/{testimonialId} {
         allow read: if true;
-        allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+        allow create: if true;
+        allow update, delete: if isAdmin();
     }
   }
 }

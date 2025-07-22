@@ -19,14 +19,19 @@ export default function FirestoreRulesPage() {
 
   useEffect(() => {
     fetch('/firestore.rules')
-      .then((res) => res.text())
+      .then((res) => {
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.text();
+      })
       .then((text) => {
         setRules(text);
         setLoading(false);
       })
       .catch((err) => {
         console.error('Failed to load firestore rules:', err);
-        setRules('নিয়মাবলী লোড করতে ব্যর্থ হয়েছে।');
+        setRules('নিয়মাবলী লোড করতে ব্যর্থ হয়েছে। অনুগ্রহ করে পৃষ্ঠাটি রিফ্রেশ করুন।');
         setLoading(false);
       });
   }, []);
