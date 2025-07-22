@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    function isAdmin() {
+      return request.auth.token.role == 'admin';
+    }
+
+    // Donors can be read by anyone, but only the user themselves or an admin can edit.
+    match /donors/{userId} {
+      allow read: if true;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Authenticated users can create requests. Admins can manage them.
+    match /bloodRequests/{requestId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+
+    // Public content can be read by anyone, but only managed by admins.
+    match /blogPosts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /teamMembers/{memberId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
