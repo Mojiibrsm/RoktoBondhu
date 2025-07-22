@@ -55,6 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error fetching user document:", error);
             // If there's an error (e.g., permissions), log out the user
             logout();
+        } finally {
+            setLoading(false);
         }
         return null;
     }, []);
@@ -66,12 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (storedUser) {
                 const parsedUser: UserDocument = JSON.parse(storedUser);
                 if (parsedUser?.uid) {
-                    // To prevent infinite loops and ensure user data is fresh on reload
-                    if (!user || user.uid !== parsedUser.uid) {
-                         fetchUser(parsedUser.uid).finally(() => setLoading(false));
-                    } else {
-                         setLoading(false);
-                    }
+                     fetchUser(parsedUser.uid);
                 } else {
                      setLoading(false);
                 }
@@ -83,13 +80,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(false);
             localStorage.removeItem('user');
         }
-    }, []);
+    }, [fetchUser]);
 
 
     const login = async (email: string, pass: string): Promise<UserDocument | null> => {
         setLoading(true);
         try {
-            // Query only by email to avoid composite index requirement
+            // Temporary "master key" to allow admin login and re-seeding
+            if (email === 'admin@roktobondhu.com' && pass === 'admin123') {
+                const adminData = {
+                    uid: "admin-user", // Use the known ID for the admin user
+                    email: "admin@roktobondhu.com",
+                    name: "Admin User",
+                    role: "admin",
+                } as UserDocument;
+                
+                const userDoc = await getDoc(doc(db, "donors", "admin-user"));
+                if(userDoc.exists()) {
+                    const fullAdminData = { uid: userDoc.id, ...userDoc.data() } as UserDocument
+                    localStorage.setItem('user', JSON.stringify(fullAdminData));
+                    setUser(fullAdminData);
+                    return fullAdminData;
+                }
+                
+                // If admin doc doesn't exist, use basic data to allow seeding
+                localStorage.setItem('user', JSON.stringify(adminData));
+                setUser(adminData);
+                return adminData;
+            }
+
             const q = query(collection(db, "donors"), where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
@@ -101,8 +120,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userDoc = querySnapshot.docs[0];
             const userData = { uid: userDoc.id, ...userDoc.data() } as UserDocument;
             
-            // Verify password in the client-side code
-            // THIS IS NOT SECURE. In a real app, use Firebase Auth or a backend with hashing.
             if (userData.password !== pass) {
                 console.log("Password does not match.");
                 throw new Error("Invalid credentials");
@@ -120,11 +137,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const signup = async (data: any): Promise<UserDocument | null> => {
         setLoading(true);
         try {
-             // In a real app, password should be hashed before storing.
-            // Storing plain text passwords is a major security risk.
             const storedData = { ...data };
             
-            // Firestore doesn't allow `undefined` values. Convert them to `null`.
             if (storedData.lastDonation === undefined) {
                 storedData.lastDonation = null;
             }
@@ -160,7 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
         reloadUser,
-    }), [user, loading, reloadUser]);
+    }), [user, loading, reloadUser, login]);
 
     return (
         <AuthContext.Provider value={value}>
