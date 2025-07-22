@@ -2,70 +2,72 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check if the user is an admin
-    function isAdmin() {
-      return get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    // Donors Collection
-    // - Users can read their own profile.
-    // - Admins can read any donor profile.
-    // - Users can create their own profile upon signup.
-    // - Users can update their own profile.
-    // - Admins can update any user's profile (e.g., to change role).
-    // - Deletion is restricted to admins only.
-    match /donors/{userId} {
-      allow get: if request.auth.uid == userId || isAdmin();
-      allow list: if isAdmin();
-      allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId || isAdmin();
-      allow delete: if isAdmin();
+    // Allow public read access to collections needed for the public site
+    match /donors/{donorId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if request.auth != null; // Any authenticated user can register as a donor
+      // Allow users to update their own profile, and admins to update any profile
+      allow update: if request.auth != null && (request.auth.uid == donorId || get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin');
+      // Only admins can delete users
+      allow delete: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Public Collections (Read-only for authenticated users)
-    // - Any authenticated user can read data from these collections.
-    // - This is necessary for pages like Blog, Donors List, FAQ, etc.
-    // - Writes are restricted to admins (implicitly, through server-side logic).
     match /blogPosts/{postId} {
-      allow get, list: if request.auth != null;
-    }
-    
-    match /faqs/{faqId} {
-        allow get, list: if request.auth != null;
+      allow read: if true;
+      // Only admins can write blog posts
+      allow write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
-    match /bloodRequests/{reqId} {
-      allow get, list: if request.auth != null;
+    match /faqs/{faqId} {
+      allow read: if true;
+      // Only admins can write FAQs
+      allow write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
-    
+
     match /teamMembers/{memberId} {
-      allow get, list: if request.auth != null;
+      allow read: if true;
+      // Only admins can write team members
+      allow write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
     match /testimonials/{testimonialId} {
-      allow get, list: if request.auth != null;
+      allow read: if true;
+       // Only admins can write testimonials
+      allow write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Feedback Collection
-    // - Authenticated users can create feedback.
-    // - Only admins can read, update or delete feedback.
-    match /feedback/{feedbackId} {
-        allow create: if request.auth != null;
-        allow read, update, delete: if isAdmin();
+    match /bloodRequests/{requestId} {
+      allow read: if true;
+      // Any authenticated user can create a blood request
+      allow create: if request.auth != null;
+      // Only admins can update or delete requests
+      allow update, delete: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Reports Collection
-    // - Authenticated users can create reports.
-    // - Only admins can read, update or delete reports.
     match /reports/{reportId} {
+        // Only admins can read/write reports
+        allow read, write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+        // Any authenticated user can create a report
         allow create: if request.auth != null;
-        allow read, update, delete: if isAdmin();
     }
 
-    // Default deny all other collections
-    match /{document=**} {
-      allow read, write: if false;
+     match /feedback/{feedbackId} {
+        // Only admins can read/write feedback
+        allow read, write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+        // Anyone can submit feedback
+        allow create: if true;
+    }
+    
+    match /settings/main {
+        allow read: if true;
+        // Only admins can write settings
+        allow write: if request.auth != null && get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }
