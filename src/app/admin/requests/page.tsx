@@ -116,21 +116,21 @@ export default async function AdminRequestsPage() {
                     <form action={handleAction}>
                       <input type="hidden" name="action" value="Approve" />
                       <input type="hidden" name="requestId" value={request.id} />
-                      <Button variant="ghost" size="icon" type="submit">
+                      <Button variant="ghost" size="icon" type="submit" title="অনুমোদন করুন">
                           <CheckCircle className="h-4 w-4 text-green-600" />
                       </Button>
                     </form>
                      <form action={handleAction}>
                         <input type="hidden" name="action" value="Edit" />
                         <input type="hidden" name="requestId" value={request.id} />
-                        <Button variant="ghost" size="icon" type="submit">
+                        <Button variant="ghost" size="icon" type="submit" title="সম্পাদনা করুন">
                             <Edit className="h-4 w-4 text-blue-600" />
                         </Button>
                     </form>
                     <form action={handleAction}>
                         <input type="hidden" name="action" value="Delete" />
                         <input type="hidden" name="requestId" value={request.id} />
-                        <Button variant="ghost" size="icon" type="submit">
+                        <Button variant="ghost" size="icon" type="submit" title="মুছে ফেলুন">
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </form>
