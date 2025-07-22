@@ -5,43 +5,47 @@ service cloud.firestore {
 
     // Helper function to check if a user is an admin
     function isAdmin() {
-      // Check if the requesting user has the 'admin' role in their own document.
+      // Check if the requesting user has the 'admin' role in their own donor document
       return get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
     // Donors collection
-    match /donors/{donorId} {
-      // Admins can list all documents in the collection
-      allow list: if isAdmin();
-      // Anyone can read a single donor's public profile
-      allow get: if true;
-      // Only the authenticated user can update their own profile
-      allow update: if request.auth.uid == donorId || isAdmin();
-      // Users can create their own account
-      allow create: if request.auth.uid == donorId || isAdmin();
-      // Admins can delete users
-      allow delete: if isAdmin();
+    match /donors/{userId} {
+      // Allow users to read their own data
+      allow get: if request.auth.uid == userId;
+      // Allow users to update their own data
+      allow update: if request.auth.uid == userId;
+      // Allow new users to create their own account (signup)
+      allow create: if request.auth.uid == userId;
     }
     
-    // Allow public read access to these collections
-    match /{collection}/{docId} 
-      where collection in ['blogPosts', 'faqs', 'teamMembers', 'testimonials', 'bloodRequests'] {
-      allow get, list: if true;
-      // Only admins can write to these informational collections
+    // Admins can list and get any donor
+    match /donors/{document=**} {
+      allow list, get: if isAdmin();
+    }
+
+    // Publicly readable collections
+    match /blogPosts/{docId} {
+      allow get: if true;
+      allow write: if isAdmin();
+    }
+    match /faqs/{docId} {
+      allow get: if true;
+      allow write: if isAdmin();
+    }
+    match /teamMembers/{docId} {
+      allow get: if true;
+      allow write: if isAdmin();
+    }
+    match /testimonials/{docId} {
+      allow get, create: if true;
       allow write: if isAdmin();
     }
 
-    // Override write rules for specific collections
+    // Blood Requests
     match /bloodRequests/{requestId} {
-        // Authenticated users can create requests
-        allow create: if request.auth.uid != null;
-        // Only admins or the user who created it can update/delete
-        // Assuming the creator's UID is stored in a 'requesterId' or 'userId' field.
-        allow update, delete: if isAdmin() || resource.data.userId == request.auth.uid;
-    }
-     match /testimonials/{testimonialId} {
-        // Authenticated users can create testimonials
-        allow create: if request.auth.uid != null;
+      allow read, create: if true;
+      allow update, delete: if isAdmin();
     }
   }
 }
