@@ -1,0 +1,39 @@
+diff --git a/node_modules/@genkit-ai/core/lib/registry.js b/node_modules/@genkit-ai/core/lib/registry.js
+index f413c6a..c9b2072 100644
+--- a/node_modules/@genkit-ai/core/lib/registry.js
++++ b/node_modules/@genkit-ai/core/lib/registry.js
+@@ -17,11 +17,15 @@
+  * limitations under the License.
+  */
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.getFlow = exports.getFlows = exports.getTool = exports.getTools = exports.getTracers = exports.getInstrumenters = exports.getTracer = exports.registerTracer = exports.registerInstrumenter = exports.lookup = exports.lookupAction = exports.defineAction = exports.listActions = exports.clearGlobals = void 0;
+-const async_hooks_1 = require("async_hooks");
++exports.getFlow = exports.getFlows = exports.getTool = exports.getTools = exports.getTracers = exports.getInstrumenters = exports.getTracer = exports.registerTracer = exports.registerInstrumenter = exports.lookup = exports.lookupAction = exports.defineAction = exports.listActions = exports.clearGlobals = void 0;
++let async_hooks_1;
++try {
++    async_hooks_1 = require('node:async_hooks');
++}
++catch (e) { }
+ const errors_1 = require("./errors");
+ // To avoid an import cycle, we have to refer to the action type by string.
+ const __ks_0 = require("./action");
+ const anr = new async_hooks_1.AsyncLocalStorage();
+ const globalRegistry = new Map();
+ const globalInstrumenters = new Map();
+diff --git a/node_modules/@genkit-ai/core/lib/tracing.js b/node_modules/@genkit-ai/core/lib/tracing.js
+index 9283d47..735e589 100644
+--- a/node_modules/@genkit-ai/core/lib/tracing.js
++++ b/node_modules/@genkit-ai/core/lib/tracing.js
+@@ -19,7 +19,11 @@
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.instrument = exports.runInNewSpan = exports.withTracing = exports.trace = exports.setCustomMetadataAttribute = exports.setSpanAttribute = exports.getTracer = exports.initTracing = exports.NoopTracer = void 0;
+ const opentelemetry = require("@opentelemetry/api");
+-const async_hooks_1 = require("async_hooks");
++let async_hooks_1;
++try {
++    async_hooks_1 = require('node:async_hooks');
++}
++catch (e) { }
+ const nanoid_1 = require("nanoid");
+ const context_1 = require("./context");
+ const registry_1 = require("./registry");
