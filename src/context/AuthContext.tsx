@@ -89,21 +89,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Temporary "master key" to allow admin login and re-seeding
             if (email === 'admin@roktobondhu.com' && pass === 'admin123') {
                 const adminData = {
-                    uid: "admin-user", // Use the known ID for the admin user
+                    uid: "admin-user",
                     email: "admin@roktobondhu.com",
                     name: "Admin User",
                     role: "admin",
                 } as UserDocument;
                 
-                const userDoc = await getDoc(doc(db, "donors", "admin-user"));
-                if(userDoc.exists()) {
-                    const fullAdminData = { uid: userDoc.id, ...userDoc.data() } as UserDocument
-                    localStorage.setItem('user', JSON.stringify(fullAdminData));
-                    setUser(fullAdminData);
-                    return fullAdminData;
-                }
-                
-                // If admin doc doesn't exist, use basic data to allow seeding
+                // Directly set admin data without checking the database for this specific case
                 localStorage.setItem('user', JSON.stringify(adminData));
                 setUser(adminData);
                 return adminData;
@@ -174,7 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
         reloadUser,
-    }), [user, loading, reloadUser, login]);
+    }), [user, loading, reloadUser]);
 
     return (
         <AuthContext.Provider value={value}>

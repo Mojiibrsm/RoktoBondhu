@@ -49,7 +49,7 @@ export const demoData = {
         id: "admin-user",
         name: "Admin User",
         email: "admin@roktobondhu.com",
-        password: "admin123",
+        password: "admin123", // This password will be used for login validation.
         role: "admin",
         bloodType: "O+",
         division: "ঢাকা",
@@ -212,4 +212,3 @@ export const demoData = {
       }
   ]
 };
-
