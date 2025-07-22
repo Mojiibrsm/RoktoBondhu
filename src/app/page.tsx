@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList, Github, Linkedin, Globe } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, limit, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, limit, orderBy, where } from "firebase/firestore";
 
 interface UrgentRequest {
     id: string;
