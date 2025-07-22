@@ -9,6 +9,7 @@ import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas
 import { demoData } from './placeholder-data';
 import serviceAccount from '../serviceAccountKey.json';
 import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
 
 let adminApp: App;
 let db: Firestore;
@@ -105,6 +106,7 @@ export async function updateUserRole(uid: string, role: 'user' | 'admin') {
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
         const userRef = db.doc(`donors/${uid}`);
         await userRef.update({ role: role });
+        revalidatePath('/admin/manage');
         console.log(`Successfully updated role for UID: ${uid}`);
         return { success: true, message: 'User role updated successfully.' };
     } catch (error) {
@@ -167,6 +169,7 @@ export async function deleteBloodRequest(id: string) {
       throw new Error('Firestore admin is not initialized.');
     }
     await db.collection('bloodRequests').doc(id).delete();
+    revalidatePath('/admin/requests');
 }
 
 export async function updateBloodRequestStatus(id: string, status: string) {
@@ -174,6 +177,7 @@ export async function updateBloodRequestStatus(id: string, status: string) {
       throw new Error('Firestore admin is not initialized.');
     }
     await db.collection('bloodRequests').doc(id).update({ status });
+    revalidatePath('/admin/requests');
 }
 
 export async function editBloodRequest(id: string, data: any) {
@@ -182,6 +186,7 @@ export async function editBloodRequest(id: string, data: any) {
     }
     // This is a placeholder. In a real app, you'd have proper validation.
     await db.collection('bloodRequests').doc(id).update(data);
+    revalidatePath('/admin/requests');
 }
 
 
@@ -271,12 +276,50 @@ const settingsSchema = z.object({
 });
 
 
+export async function getSettings() {
+    const defaultSettings = {
+        siteName: 'রক্তবন্ধু',
+        tagline: 'রক্তদাতাদের সাথে ضرورتمندদের সংযোগ স্থাপন।',
+        primaryColor: '#A92116',
+        metaTitle: 'রক্তবন্ধু - রক্ত দিন, জীবন বাঁচান',
+        metaDescription: 'বাংলাদেশের সবচেয়ে বড় অনলাইন রক্তদাতা নেটওয়ার্ক। জরুরী রক্তের প্রয়োজনে ডোনার খুঁজুন বা রক্তদাতা হিসেবে নিবন্ধন করুন।',
+        minimumAge: 18,
+        donationGap: 90,
+        bloodTypes: 'A+, A-, B+, B-, O+, O-, AB+, AB-',
+        eligibilityRules: 'আপনাকে অবশ্যই সুস্থ থাকতে হবে। আপনার ওজন কমপক্ষে ৫০ কেজি হতে হবে। গত ৩ মাসে রক্তদান করেননি এমন ব্যক্তিরাই রক্ত দিতে পারবেন।',
+    };
+
+    if (!db) {
+        console.error('Firestore not initialized, returning default settings.');
+        return defaultSettings;
+    }
+
+    try {
+        const settingsDoc = await db.collection('settings').doc('main').get();
+        if (settingsDoc.exists) {
+            return settingsDoc.data() as z.infer<typeof settingsSchema>;
+        }
+        return defaultSettings;
+    } catch (error) {
+        console.error("Error fetching settings:", error);
+        return defaultSettings;
+    }
+}
+
 export async function handleUpdateSettings(values: z.infer<typeof settingsSchema>) {
-    console.log("Attempting to update settings with values:", values);
-    // In a real app, you would save these values to a 'settings' collection in Firestore.
-    // For now, we just log it and simulate a successful response.
-    const validatedData = settingsSchema.parse(values);
-    console.log("Validated settings data:", validatedData);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: "সেটিংস সফলভাবে আপডেট করা হয়েছে।" };
+    if (!db) {
+        const message = 'Firestore admin is not initialized.';
+        console.error(message);
+        return { success: false, message };
+    }
+    try {
+        const validatedData = settingsSchema.parse(values);
+        await db.collection('settings').doc('main').set(validatedData, { merge: true });
+        revalidatePath('/admin/settings');
+        return { success: true, message: "সেটিংস সফলভাবে আপডেট করা হয়েছে।" };
+    } catch (error: any) {
+        console.error("Error updating settings:", error);
+        const message = error instanceof z.ZodError ? error.errors.map(e => e.message).join(', ') : 'An unknown error occurred.';
+        return { success: false, message: `সেটিংস আপডেট করা যায়নি: ${message}` };
+    }
 }
