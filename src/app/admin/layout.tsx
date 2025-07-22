@@ -75,7 +75,9 @@ import { useEffect } from "react";
         { href: "/admin/settings", icon: Settings, label: "সেটিংস" }
     ];
 
-    const placeholderLinks = ["/admin/donors", "/admin/requests", "/admin/posts", "/admin/reports", "/admin/data", "/admin/feedback", "/admin/settings"];
+    // Placeholder for pages that are not yet created to avoid 404s.
+    // You can remove items from here as you create the pages.
+    const placeholderPages = ["/admin/donors", "/admin/requests", "/admin/posts", "/admin/reports", "/admin/data", "/admin/feedback", "/admin/settings"];
 
 
     return (
@@ -101,7 +103,7 @@ import { useEffect } from "react";
                                     asChild 
                                     isActive={pathname === item.href}
                                 >
-                                    <Link href={placeholderLinks.includes(item.href) ? "#" : item.href}>
+                                    <Link href={placeholderPages.includes(item.href) ? "#" : item.href}>
                                         <item.icon />
                                         {item.label}
                                     </Link>
@@ -131,4 +133,3 @@ import { useEffect } from "react";
       </SidebarProvider>
     )
   }
-  
