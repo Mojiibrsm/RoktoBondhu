@@ -41,7 +41,6 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { divisions, districts, upazilas } from "@/lib/placeholder-data";
 
-
 const formSchema = z.object({
   fullName: z.string().min(1, { message: "পুরো নাম আবশ্যক।" }),
   email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }).optional().or(z.literal('')),
@@ -416,7 +415,7 @@ export default function RegisterPage() {
                     </form>
                 </Form>
                 <div className="mt-4 text-center text-sm">
-                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{" "}
+                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
                 <Link href="/login" className="underline text-accent">
                     সাইন ইন করুন
                 </Link>
