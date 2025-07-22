@@ -18,7 +18,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Droplet className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline text-lg">
-              ব্লাডকানেক্ট প্রো
+              রক্তবন্ধু
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -49,7 +49,7 @@ export function Header() {
           <SheetContent side="left">
             <Link href="/" className="mr-6 flex items-center space-x-2 mb-6">
               <Droplet className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline text-lg">ব্লাডকানেক্ট প্রো</span>
+              <span className="font-bold font-headline text-lg">রক্তবন্ধু</span>
             </Link>
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (

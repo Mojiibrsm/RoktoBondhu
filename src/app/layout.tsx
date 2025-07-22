@@ -6,7 +6,7 @@ import { Footer } from '@/components/footer';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'ব্লাডকানেক্ট প্রো',
+  title: 'রক্তবন্ধু',
   description: 'রক্তদাতাদের সাথে ضرورتمندদের সংযোগ স্থাপন।',
 };
 

@@ -95,7 +95,7 @@ export const blogPosts = [
     slug: 'journey-of-donated-blood',
     title: 'এক পাইন্ট রক্তের যাত্রা: দাতা থেকে গ্রহীতা পর্যন্ত',
     excerpt: 'কখনো ভেবে দেখেছেন রক্তদান করার পর আপনার রক্তের কী হয়? এই নিবন্ধটি দানের মুহূর্ত থেকে শুরু করে কোনো রোগীর কাছে পৌঁছানো পর্যন্ত যাত্রা ট্র্যাক করে।',
-    author: 'ব্লাডকানেক্ট টিম',
+    author: 'রক্তবন্ধু টিম',
     date: 'জুন ২৮, ২০২৪',
     image: 'https://placehold.co/400x225.png',
     aiHint: 'laboratory science',
