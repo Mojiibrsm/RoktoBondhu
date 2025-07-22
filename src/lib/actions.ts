@@ -9,29 +9,25 @@ import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas
 import { demoData } from './placeholder-data';
 import serviceAccount from '../serviceAccountKey.json';
 
-let db: Firestore;
-
-function initializeAdminApp() {
-    if (admin.apps.some(app => app?.name === 'roktobondhu-admin')) {
-        db = getFirestore(admin.app('roktobondhu-admin'));
-        return;
+const createAdminApp = () => {
+    const appName = 'roktobondhu-admin';
+    const existingApp = admin.apps.find(app => app?.name === appName);
+    if (existingApp) {
+        return getFirestore(existingApp);
     }
-    
+
     const serviceAccountParams = {
         projectId: serviceAccount.project_id,
         clientEmail: serviceAccount.client_email,
         privateKey: serviceAccount.private_key.replace(/\\n/g, '\n'),
     };
 
-    const app = admin.initializeApp({
+    const newApp = admin.initializeApp({
         credential: admin.credential.cert(serviceAccountParams),
-    }, 'roktobondhu-admin');
+    }, appName);
     
-    db = getFirestore(app);
+    return getFirestore(newApp);
 }
-
-// Initialize the app when the module is loaded
-initializeAdminApp();
 
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
@@ -63,6 +59,7 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 }
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
+    const db = createAdminApp();
     try {
         const batch = db.batch();
         const dataToSeed = demoData[collectionName];
@@ -107,6 +104,7 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 }
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
+    const db = createAdminApp();
     try {
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
         const userRef = db.doc(`donors/${uid}`);
