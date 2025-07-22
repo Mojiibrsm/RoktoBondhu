@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true);
             if (user) {
                 setUser(user);
                 const userRef = doc(db, 'donors', user.uid);
@@ -56,7 +55,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (docSnap.exists()) {
                     setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
                 } else {
-                    // Handle case where auth user exists but no firestore doc
                     setUserDoc(null);
                 }
             } else {
@@ -98,15 +96,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
     };
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+
     return (
         <AuthContext.Provider value={value}>
-            {loading ? (
-                <div className="flex justify-center items-center h-screen">
-                    <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                </div>
-            ) : (
-                children
-            )}
+            {children}
         </AuthContext.Provider>
     );
 };
