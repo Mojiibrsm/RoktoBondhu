@@ -136,3 +136,27 @@ export async function getDonors() {
   });
   return donors;
 }
+
+export async function getBloodRequests() {
+    if (!db) {
+      throw new Error('Firestore admin is not initialized.');
+    }
+    const requestsSnapshot = await db.collection('bloodRequests').orderBy('postedTime', 'desc').get();
+    const requests = requestsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      // Convert Firestore Timestamps to strings
+      const sanitizedData: { [key: string]: any } = {};
+      for (const key in data) {
+          if (data[key] instanceof Timestamp) {
+              sanitizedData[key] = data[key].toDate().toISOString();
+          } else {
+              sanitizedData[key] = data[key];
+          }
+      }
+      return {
+        id: doc.id,
+        ...sanitizedData
+      };
+    });
+    return requests;
+  }
