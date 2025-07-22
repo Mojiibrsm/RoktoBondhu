@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Loader2, ExternalLink } from 'lucide-react';
 import { answerFAQOnServer } from '@/lib/actions';
-import type { AnswerFAQOutput } from '@/ai/flows/answer-faq';
+import type { AnswerFAQOutput } from '@/ai/schemas/faq';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({

@@ -4,23 +4,11 @@
  * @fileOverview A flow to answer frequently asked questions about blood donation using reliable online resources.
  *
  * - answerFAQ - A function that answers a user's question about blood donation.
- * - AnswerFAQInput - The input type for the answerFAQ function.
- * - AnswerFAQOutput - The return type for the answerFAQ function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-const AnswerFAQInputSchema = z.object({
-  question: z.string().describe('The user question about blood donation.'),
-});
-export type AnswerFAQInput = z.infer<typeof AnswerFAQInputSchema>;
-
-const AnswerFAQOutputSchema = z.object({
-  answer: z.string().describe('The answer to the user question, based on reliable sources.'),
-  sources: z.array(z.string()).describe('A list of URLs to reliable sources used to answer the question.'),
-});
-export type AnswerFAQOutput = z.infer<typeof AnswerFAQOutputSchema>;
+import { AnswerFAQInputSchema, AnswerFAQOutputSchema, AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
 
 export async function answerFAQ(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   return answerFAQFlow(input);

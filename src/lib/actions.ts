@@ -1,8 +1,10 @@
 // src/lib/actions.ts
 'use server';
 
-import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-faq';
-import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
+import { answerFAQ } from '@/ai/flows/answer-faq';
+import { sendNotification } from '@/ai/flows/send-notification';
+import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
+import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas/notifications';
 import { db } from './firebase-admin'; // Using admin SDK for backend operations
 import { demoData } from './placeholder-data';
 import { collection, writeBatch, doc, updateDoc } from 'firebase/firestore';
