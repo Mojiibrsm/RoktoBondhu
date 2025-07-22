@@ -11,7 +11,6 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from '@/lib/firebase';
-import { Loader2 } from 'lucide-react';
 
 interface UserDocument {
     uid: string;
@@ -48,7 +47,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true);
             if (user) {
                 setUser(user);
                 const userRef = doc(db, 'donors', user.uid);
@@ -57,11 +55,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if (docSnap.exists()) {
                         setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
                     } else {
-                        setUserDoc(null);
+                        // User exists in Auth, but not in Firestore. Maybe a new user.
+                        setUserDoc(null); 
                     }
                 } catch (error) {
                     console.error("Error fetching user document:", error);
-                    setUserDoc(null);
+                    console.error("This is likely due to Firestore security rules. Please deploy the firestore.rules file.");
+                    // Set a fallback userDoc to prevent infinite loading
+                    setUserDoc({ uid: user.uid, email: user.email || '', name: 'ব্যবহারকারী', role: 'user' });
                 }
             } else {
                 setUser(null);
@@ -74,10 +75,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (email: string, pass: string) => {
+        setLoading(true);
         return signInWithEmailAndPassword(auth, email, pass);
     };
 
     const signup = async (email: string, pass: string, data: object) => {
+        setLoading(true);
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
         const userRef = doc(db, "donors", user.uid);
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         await setDoc(userRef, userData);
         setUserDoc(userData as UserDocument);
+        setLoading(false);
         return userCredential;
     };
 
