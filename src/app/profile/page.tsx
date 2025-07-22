@@ -48,6 +48,9 @@ export default function ProfilePage() {
         if (!loading && !user) {
             router.push('/login');
         }
+    }, [user, loading, router]);
+    
+    useEffect(() => {
         if(userDoc) {
             setFormData({
                 name: userDoc.name || '',
@@ -56,10 +59,10 @@ export default function ProfilePage() {
                 district: userDoc.district || '',
                 upazila: userDoc.upazila || '',
                 lastDonation: userDoc.lastDonation?.toDate ? userDoc.lastDonation.toDate().toISOString().split('T')[0] : '',
-                available: userDoc.available || false,
+                available: userDoc.available ?? true,
             })
         }
-    }, [user, userDoc, loading, router]);
+    }, [userDoc]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -128,7 +131,7 @@ export default function ProfilePage() {
                     <CardHeader className="items-center text-center">
                         <User className="w-20 h-20 text-primary mb-4" />
                         <CardTitle className="font-headline text-3xl">{userDoc.name}</CardTitle>
-                        <CardDescription>{user.email}</CardDescription>
+                        <CardDescription>{user?.email}</CardDescription>
                     </CardHeader>
                     <CardContent className="text-center space-y-3">
                         <div className="flex items-center justify-center gap-2">
@@ -168,7 +171,7 @@ export default function ProfilePage() {
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="email">ইমেল ঠিকানা</Label>
-                            <Input id="email" type="email" value={user.email || ''} disabled />
+                            <Input id="email" type="email" value={user?.email || ''} disabled />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone">ফোন নম্বর</Label>
@@ -181,7 +184,7 @@ export default function ProfilePage() {
                         <div className="space-y-2">
                           <Label htmlFor="division">বিভাগ</Label>
                           <Select value={formData.division} onValueChange={(value) => handleSelectChange('division', value)}>
-                            <SelectTrigger id="division"><SelectValue /></SelectTrigger>
+                            <SelectTrigger id="division"><SelectValue placeholder="বিভাগ নির্বাচন করুন" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Dhaka">ঢাকা</SelectItem>
                                 <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>

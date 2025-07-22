@@ -48,14 +48,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
             if (user) {
                 setUser(user);
                 const userRef = doc(db, 'donors', user.uid);
-                const docSnap = await getDoc(userRef);
-                if (docSnap.exists()) {
-                    setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
-                } else {
-                    setUserDoc(null); // Explicitly set to null if doc doesn't exist
+                try {
+                    const docSnap = await getDoc(userRef);
+                    if (docSnap.exists()) {
+                        setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
+                    } else {
+                        setUserDoc(null); // Doc doesn't exist
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error);
+                    setUserDoc(null);
                 }
             } else {
                 setUser(null);
@@ -69,30 +75,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = (email: string, pass: string) => {
         setLoading(true);
-        return signInWithEmailAndPassword(auth, email, pass);
+        return signInWithEmailAndPassword(auth, email, pass).finally(() => setLoading(false));
     };
 
     const signup = async (email: string, pass: string, data: object) => {
         setLoading(true);
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-        const userRef = doc(db, "donors", user.uid);
-        await setDoc(userRef, {
-            ...data,
-            uid: user.uid,
-            email: user.email,
-        });
-        // Manually set userDoc after signup to avoid waiting for onAuthStateChanged
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-             setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            const user = userCredential.user;
+            const userRef = doc(db, "donors", user.uid);
+            await setDoc(userRef, {
+                ...data,
+                uid: user.uid,
+                email: user.email,
+            });
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                 setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
+            }
+            return userCredential;
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
-        return userCredential;
     };
 
     const logout = () => {
-        setLoading(true);
         return signOut(auth);
     };
 
