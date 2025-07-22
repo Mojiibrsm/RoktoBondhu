@@ -71,11 +71,32 @@ export default function DonorsPage() {
             </div>
             <div className="space-y-2">
               <label htmlFor="district" className="font-medium">জেলা</label>
-              <Input id="district" placeholder="যেমন, ঢাকা" />
+              <Select>
+                <SelectTrigger id="district">
+                  <SelectValue placeholder="যেকোনো" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Dhaka">ঢাকা</SelectItem>
+                  <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                  <SelectItem value="Gazipur">গাজীপুর</SelectItem>
+                  <SelectItem value="Narayanganj">নারায়ণগঞ্জ</SelectItem>
+                  <SelectItem value="Sylhet">সিলেট</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <label htmlFor="upazila" className="font-medium">উপজেলা / এলাকা</label>
-              <Input id="upazila" placeholder="যেমন, গুলশান" />
+               <Select>
+                <SelectTrigger id="upazila">
+                  <SelectValue placeholder="যেকোনো" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Gulshan">গুলশান</SelectItem>
+                  <SelectItem value="Dhanmondi">ধানমন্ডি</SelectItem>
+                  <SelectItem value="Panchlaish">পাঁচলাইশ</SelectItem>
+                  <SelectItem value="Sreepur">শ্রীপুর</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button type="submit" className="w-full lg:w-auto bg-primary hover:bg-primary/90">
               <Search className="mr-2 h-4 w-4" /> অনুসন্ধান
