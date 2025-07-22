@@ -1,14 +1,21 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+// src/app/register/page.tsx
+'use client';
+
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -16,70 +23,317 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
+
+const formSchema = z.object({
+  fullName: z.string().min(1, { message: "পুরো নাম आवश्यक।" }),
+  bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
+  phoneNumber: z.string().min(1, { message: "ফোন নম্বর आवश्यक।" }),
+  email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
+  password: z.string().min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" }),
+  division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
+  district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
+  upazila: z.string().min(1, { message: "উপজেলা/এলাকা লিখুন।" }),
+  lastDonationDate: z.date().optional(),
+  availableToDonate: z.boolean().default(true),
+  profilePicture: z.any().optional(),
+});
 
 export default function RegisterPage() {
+    const [loading, setLoading] = useState(false);
+    const { toast } = useToast();
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            fullName: "",
+            phoneNumber: "",
+            email: "",
+            password: "",
+            upazila: "",
+            availableToDonate: true,
+        },
+    });
+
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        setLoading(true);
+        console.log(values);
+        // এখানে ফায়ারবেস বা অন্য কোনো সার্ভারে ডেটা পাঠানোর কোড লেখা হবে
+        setTimeout(() => {
+            setLoading(false);
+            toast({
+                title: "সফল!",
+                description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
+            });
+            form.reset();
+        }, 2000);
+    }
+
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
-        <Card className="mx-auto max-w-sm w-full shadow-xl">
-        <CardHeader>
-            <CardTitle className="text-3xl font-headline text-primary">একজন দাতা হন</CardTitle>
-            <CardDescription>
-            একটি অ্যাকাউন্ট তৈরি করতে আপনার তথ্য লিখুন
-            </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid gap-4">
-            <div className="grid gap-2">
-                <Label htmlFor="full-name">পুরো নাম</Label>
-                <Input id="full-name" placeholder="ম্যাক্স রবিনসন" required />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="email">ইমেল</Label>
-                <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="blood-type">রক্তের গ্রুপ</Label>
-                <Select>
-                  <SelectTrigger id="blood-type">
-                    <SelectValue placeholder="আপনার রক্তের গ্রুপ নির্বাচন করুন" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="A+">A+</SelectItem>
-                    <SelectItem value="A-">A-</SelectItem>
-                    <SelectItem value="B+">B+</SelectItem>
-                    <SelectItem value="B-">B-</SelectItem>
-                    <SelectItem value="O+">O+</SelectItem>
-                    <SelectItem value="O-">O-</SelectItem>
-                    <SelectItem value="AB+">AB+</SelectItem>
-                    <SelectItem value="AB-">AB-</SelectItem>
-                  </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="password">পাসওয়ার্ড</Label>
-                <Input id="password" type="password" />
-            </div>
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                অ্যাকাউন্ট তৈরি করুন
-            </Button>
-            <Button variant="outline" className="w-full">
-                গুগল দিয়ে সাইন আপ করুন
-            </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">
-            ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{" "}
-            <Link href="/login" className="underline text-accent">
-                সাইন ইন করুন
-            </Link>
-            </div>
-        </CardContent>
+    <div className="flex items-center justify-center py-12">
+        <Card className="mx-auto max-w-2xl w-full shadow-xl">
+            <CardHeader>
+                <CardTitle className="text-3xl font-headline text-primary">একজন দাতা হন</CardTitle>
+                <CardDescription>
+                একটি অ্যাকাউন্ট তৈরি করতে আপনার তথ্য লিখুন
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="fullName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>পুরো নাম</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="আপনার পুরো নাম" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="bloodType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>রক্তের গ্রুপ</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="রক্তের গ্রুপ নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="A+">A+</SelectItem>
+                                            <SelectItem value="A-">A-</SelectItem>
+                                            <SelectItem value="B+">B+</SelectItem>
+                                            <SelectItem value="B-">B-</SelectItem>
+                                            <SelectItem value="O+">O+</SelectItem>
+                                            <SelectItem value="O-">O-</SelectItem>
+                                            <SelectItem value="AB+">AB+</SelectItem>
+                                            <SelectItem value="AB-">AB-</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="phoneNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>ফোন নম্বর</FormLabel>
+                                    <FormControl>
+                                        <Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>ইমেল</FormLabel>
+                                    <FormControl>
+                                        <Input type="email" placeholder="m@example.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>পাসওয়ার্ড</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <div className="grid md:grid-cols-3 gap-6">
+                             <FormField
+                                control={form.control}
+                                name="division"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>বিভাগ</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="বিভাগ নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Dhaka">ঢাকা</SelectItem>
+                                            <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="district"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>জেলা</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="জেলা নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Dhaka">ঢাকা</SelectItem>
+                                            <SelectItem value="Gazipur">গাজীপুর</SelectItem>
+                                            <SelectItem value="Chittagong">চট্টগ্রাম</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="upazila"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>উপজেলা / এলাকা</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="আপনার এলাকা" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                         <FormField
+                            control={form.control}
+                            name="lastDonationDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel>শেষ রক্তদানের তারিখ (ঐচ্ছিক)</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-[240px] pl-3 text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>একটি তারিখ বাছুন</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        disabled={(date) =>
+                                            date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        initialFocus
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                        <FormField
+                            control={form.control}
+                            name="profilePicture"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>প্রোফাইল ছবি (ঐচ্ছিক)</FormLabel>
+                                <FormControl>
+                                    <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="availableToDonate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                <FormControl>
+                                    <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <FormLabel>
+                                        রক্তদানের জন্য উপলব্ধ?
+                                    </FormLabel>
+                                    <FormDescription>
+                                        জরুরী প্রয়োজনে আপনার সাথে যোগাযোগ করা হতে পারে।
+                                    </FormDescription>
+                                </div>
+                                </FormItem>
+                            )}
+                        />
+
+                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
+                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                             {loading ? 'প্রসেস হচ্ছে...' : 'অ্যাকাউন্ট তৈরি করুন'}
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                            গুগল দিয়ে সাইন আপ করুন
+                        </Button>
+                    </form>
+                </Form>
+                <div className="mt-4 text-center text-sm">
+                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{" "}
+                <Link href="/login" className="underline text-accent">
+                    সাইন ইন করুন
+                </Link>
+                </div>
+            </CardContent>
         </Card>
     </div>
   )
 }
+
+    
