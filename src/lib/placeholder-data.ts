@@ -44,6 +44,46 @@ export const upazilas: { [key: string]: string[] } = {
 // --- Demo Data for Firestore ---
 
 export const demoData = {
+  donors: [
+    {
+        id: "admin-user",
+        name: "Admin User",
+        email: "admin@roktobondhu.com",
+        password: "admin123",
+        role: "admin",
+        bloodType: "O+",
+        division: "ঢাকা",
+        district: "ঢাকা",
+        upazila: "উত্তরা",
+        phone: "01234567890",
+        available: true,
+        totalDonations: 10,
+        createdAt: "2023-01-01T10:00:00Z",
+        dateOfBirth: "1990-01-01T00:00:00Z",
+        gender: "পুরুষ",
+        lastDonation: "2024-05-01T00:00:00Z",
+        image: "https://placehold.co/96x96.png"
+    },
+    {
+        id: "regular-user-1",
+        name: "Rahim Sheikh",
+        email: "rahim@example.com",
+        password: "password123",
+        role: "user",
+        bloodType: "A+",
+        division: "চট্টগ্রাম",
+        district: "চট্টগ্রাম",
+        upazila: "কোতোয়ালী",
+        phone: "01711111111",
+        available: true,
+        totalDonations: 5,
+        createdAt: "2023-02-15T11:00:00Z",
+        dateOfBirth: "1995-05-10T00:00:00Z",
+        gender: "পুরুষ",
+        lastDonation: "2024-03-10T00:00:00Z",
+        image: "https://placehold.co/96x96.png"
+    }
+  ],
   teamMembers: [
     {
       id: "mujibur-rahman",
@@ -155,7 +195,7 @@ export const demoData = {
           district: "ঢাকা",
           upazila: "রমনা",
           status: "জরুরী",
-          postedTime: new Date(),
+          postedTime: "2024-07-20T10:00:00Z",
           reason: "Patient undergoing open-heart surgery and requires 2 bags of O+ blood immediately."
       },
       {
@@ -167,7 +207,7 @@ export const demoData = {
           district: "চট্টগ্রাম",
           upazila: "পাঁচলাইশ",
           status: "সক্রিয়",
-          postedTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          postedTime: "2024-07-21T12:00:00Z",
           reason: "Scheduled C-section delivery tomorrow morning. A- blood is needed on standby."
       }
   ]

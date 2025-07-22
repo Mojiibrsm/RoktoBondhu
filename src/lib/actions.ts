@@ -47,7 +47,11 @@ async function createAuthUser(uid: string, email: string, pass: string, role: st
     } catch(error: any) {
         if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
             console.log(`Auth user ${email} already exists. Setting custom claims.`);
-            await auth.setCustomUserClaims(uid, { role });
+            try {
+                await auth.setCustomUserClaims(uid, { role });
+            } catch (claimError) {
+                console.error(`Failed to set custom claims for ${email}:`, claimError);
+            }
         } else {
             console.error(`Error creating auth user ${email}:`, error);
             throw error;
@@ -71,27 +75,32 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
             const docRef = doc(collection(db, collectionName), item.id);
 
             // Handle date conversion if needed
-            const itemWithDates = { ...item };
-            if (item.createdAt && typeof item.createdAt === 'string') {
-                itemWithDates.createdAt = new Date(item.createdAt);
+            const itemWithDates: { [key: string]: any } = { ...item };
+            for (const key in itemWithDates) {
+                if (Object.prototype.hasOwnProperty.call(itemWithDates, key)) {
+                    // Check for common date fields and if they are string representations
+                    if (['createdAt', 'dateOfBirth', 'lastDonation', 'postedTime', 'date'].includes(key) && typeof itemWithDates[key] === 'string') {
+                         const date = new Date(itemWithDates[key]);
+                         if (!isNaN(date.getTime())) {
+                            itemWithDates[key] = date;
+                         }
+                    }
+                }
             }
-             if (item.dateOfBirth && typeof item.dateOfBirth === 'string') {
-                itemWithDates.dateOfBirth = new Date(item.dateOfBirth);
-            }
-             if (item.lastDonation && typeof item.lastDonation === 'string') {
-                itemWithDates.lastDonation = new Date(item.lastDonation);
-            }
-             if (item.postedTime && typeof item.postedTime === 'string') {
-                itemWithDates.postedTime = new Date(item.postedTime);
+
+            // Remove password from the object that will be stored in Firestore
+            const firestoreData = { ...itemWithDates };
+            if ('password' in firestoreData) {
+                delete firestoreData.password;
             }
 
 
-            batch.set(docRef, itemWithDates);
+            batch.set(docRef, firestoreData);
 
             // If we are seeding donors, create auth users for them
             if (collectionName === 'donors') {
                 const { id, email, password, role } = item as any;
-                 if (email && password && role) {
+                 if (id && email && password && role) {
                     await createAuthUser(id, email, password, role);
                 }
             }
