@@ -1,3 +1,4 @@
+
 // src/app/register/page.tsx
 'use client';
 
@@ -94,9 +95,6 @@ const upazilas: { [key: string]: string[] } = {
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
-    const [selectedDivision, setSelectedDivision] = useState<string>('');
-    const [selectedDistrict, setSelectedDistrict] = useState<string>('');
-
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -272,7 +270,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="রক্তের গ্রুপ নির্বাচন করুন" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="A+">A+</SelectItem>
@@ -364,7 +362,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="বিভাগ নির্বাচন করুন" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                             {divisions.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
@@ -387,7 +385,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="জেলা নির্বাচন করুন" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                             {currentDivision && districts[currentDivision] && districts[currentDivision].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
@@ -407,7 +405,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="উপজেলা নির্বাচন করুন" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                              {currentDistrict && upazilas[currentDistrict] && upazilas[currentDistrict].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
