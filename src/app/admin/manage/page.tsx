@@ -1,8 +1,5 @@
 // src/app/admin/manage/page.tsx
-'use client';
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, onSnapshot, Timestamp } from 'firebase/firestore';
+import { getDonors, updateUserRole } from '@/lib/actions';
 import {
   Card,
   CardContent,
@@ -18,85 +15,46 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { updateUserRole } from '@/lib/actions';
-import { useAuth } from '@/context/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { AdminRoleManager } from '@/components/admin-role-manager';
 
 interface User {
   uid: string;
   name: string;
   email: string;
   role: 'user' | 'admin';
-  createdAt: Timestamp;
+  createdAt: string; // Changed from Timestamp
 }
 
-export default function AdminManagePage() {
-  const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+export default async function AdminManagePage() {
+  let users: User[] = [];
+  let error: string | null = null;
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'donors'), (snapshot) => {
-      const usersData = snapshot.docs.map(
-        (doc) =>
-          ({
-            uid: doc.id,
-            ...doc.data(),
-          } as User)
-      );
-      setUsers(usersData);
-      setLoading(false);
-    });
+  try {
+    const donors = await getDonors();
+    // The getDonors function already returns users. We can filter if needed, but for now, we'll show all.
+    users = donors.map(d => ({
+        uid: d.uid,
+        name: d.name,
+        email: d.email,
+        role: d.role || 'user', // default to 'user' if role is not set
+        createdAt: d.createdAt,
+    }));
+  } catch (e: any) {
+    console.error("Error fetching users for admin management: ", e);
+    error = "ব্যবহারকারীদের তালিকা লোড করতে ব্যর্থ হয়েছে।";
+  }
 
-    return () => unsubscribe();
-  }, []);
-
-  const handleRoleChange = async (uid: string, newRole: 'user' | 'admin') => {
-    if (uid === currentUser?.uid) {
-      toast({
-        variant: 'destructive',
-        title: 'ত্রুটি',
-        description: 'আপনি নিজের ভূমিকা পরিবর্তন করতে পারবেন না।',
-      });
-      return;
-    }
-
-    try {
-      const result = await updateUserRole(uid, newRole);
-      if (result.success) {
-        toast({
-          title: 'সফল!',
-          description: `ব্যবহারকারীর ভূমিকা সফলভাবে ${
-            newRole === 'admin' ? 'অ্যাডমিন' : 'ব্যবহারকারী'
-          } করা হয়েছে।`,
-        });
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'ভূমিকা পরিবর্তনে ত্রুটি',
-        description: error.message,
-      });
-    }
-  };
-
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-3xl text-destructive">ত্রুটি</CardTitle>
+          <CardDescription>
+            {error} অনুগ্রহ করে আবার চেষ্টা করুন।
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
@@ -127,8 +85,8 @@ export default function AdminManagePage() {
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  {user.createdAt?.toDate
-                    ? new Date(user.createdAt.toDate()).toLocaleDateString(
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString(
                         'bn-BD'
                       )
                     : 'N/A'}
@@ -144,21 +102,7 @@ export default function AdminManagePage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Select
-                    defaultValue={user.role}
-                    onValueChange={(value: 'user' | 'admin') =>
-                      handleRoleChange(user.uid, value)
-                    }
-                    disabled={user.uid === currentUser?.uid}
-                  >
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue placeholder="ভূমিকা বাছুন" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">ব্যবহারকারী</SelectItem>
-                      <SelectItem value="admin">অ্যাডমিন</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <AdminRoleManager user={user} updateUserRole={updateUserRole} />
                 </TableCell>
               </TableRow>
             ))}
