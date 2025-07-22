@@ -25,7 +25,8 @@ import {
     Settings,
     Home,
     Loader2,
-    DatabaseZap
+    DatabaseZap,
+    FileLock
   } from "lucide-react"
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -129,6 +130,12 @@ import { useEffect } from "react";
                             <SidebarMenuButton href="/admin/seed">
                                 <DatabaseZap />
                                 Seed Database
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton href="/admin/rules">
+                                <FileLock />
+                                Firestore Rules
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
