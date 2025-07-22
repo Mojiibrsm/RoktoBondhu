@@ -24,7 +24,8 @@ import {
     MessageSquare,
     Settings,
     Home,
-    Loader2
+    Loader2,
+    DatabaseZap
   } from "lucide-react"
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -122,6 +123,12 @@ import { useEffect } from "react";
                             <SidebarMenuButton href="#">
                                 <Database />
                                 ডেটা
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                         <SidebarMenuItem>
+                            <SidebarMenuButton href="/admin/seed">
+                                <DatabaseZap />
+                                Seed Database
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>

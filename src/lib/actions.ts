@@ -2,7 +2,9 @@
 
 import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-faq';
 import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
-
+import { db } from './firebase';
+import { collection, writeBatch, doc } from 'firebase/firestore';
+import { demoData } from './placeholder-data';
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -30,4 +32,30 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
     console.error("Error in sendNotificationOnServer:", error);
     throw new Error("Failed to send notification.");
   }
+}
+
+export async function seedDatabase(collectionName: keyof typeof demoData) {
+    try {
+        const batch = writeBatch(db);
+        const dataToSeed = demoData[collectionName];
+
+        if (!dataToSeed) {
+            throw new Error(`No data found for collection: ${collectionName}`);
+        }
+
+        console.log(`Starting to seed collection: ${collectionName}`);
+
+        for (const item of dataToSeed) {
+            const docRef = doc(collection(db, collectionName), item.id);
+            batch.set(docRef, item);
+        }
+
+        await batch.commit();
+
+        console.log(`Successfully seeded collection: ${collectionName}`);
+        return { success: true, message: `Collection "${collectionName}" seeded successfully.` };
+    } catch (error) {
+        console.error(`Error seeding collection ${collectionName}:`, error);
+        return { success: false, message: `Failed to seed collection "${collectionName}".` };
+    }
 }
