@@ -1,7 +1,7 @@
 // src/lib/actions.ts
 'use server';
-import * as admin from 'firebase-admin';
-import { getFirestore, Firestore } from 'firebase-admin/firestore';
+import { initializeApp, getApps, App, cert } from 'firebase-admin/app';
+import { getFirestore, Firestore, Timestamp } from 'firebase-admin/firestore';
 import { answerFAQ } from '@/ai/flows/answer-faq';
 import { sendNotification } from '@/ai/flows/send-notification';
 import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
@@ -9,24 +9,24 @@ import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas
 import { demoData } from './placeholder-data';
 import serviceAccount from '../serviceAccountKey.json';
 
-function createAdminApp() {
+let adminApp: App;
+let db: Firestore;
+
+try {
     const appName = 'roktobondhu-admin';
-    const existingApp = admin.apps.find(app => app?.name === appName);
-    if(existingApp) {
-        return getFirestore(existingApp);
+    const existingApp = getApps().find(app => app.name === appName);
+    if (existingApp) {
+        adminApp = existingApp;
+    } else {
+        adminApp = initializeApp({
+            credential: cert(serviceAccount)
+        }, appName);
     }
-
-    const serviceAccountParams = {
-        projectId: serviceAccount.project_id,
-        clientEmail: serviceAccount.client_email,
-        privateKey: serviceAccount.private_key.replace(/\\n/g, '\n'),
-    };
-
-    const newApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountParams),
-    }, appName);
-
-    return getFirestore(newApp);
+    db = getFirestore(adminApp);
+} catch (error: any) {
+    console.error("Firebase Admin Initialization Error in actions.ts:", error.stack);
+    // We are not throwing the error here to allow the module to be loaded,
+    // but the subsequent DB operations will fail.
 }
 
 
@@ -59,9 +59,8 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 }
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
-    const db = createAdminApp();
     if (!db) {
-        const message = 'Firestore admin is not initialized. Check server environment variables or service account file.';
+        const message = 'Firestore admin is not initialized. Check server logs for initialization errors.';
         console.error(message);
         return { success: false, message };
     }
@@ -87,7 +86,7 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
                     if (['createdAt', 'dateOfBirth', 'lastDonation', 'postedTime', 'date'].includes(key) && typeof itemWithDates[key] === 'string') {
                          const date = new Date(itemWithDates[key]);
                          if (!isNaN(date.getTime())) {
-                            itemWithDates[key] = admin.firestore.Timestamp.fromDate(date);
+                            itemWithDates[key] = Timestamp.fromDate(date);
                          }
                     }
                 }
@@ -110,9 +109,8 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 }
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
-     const db = createAdminApp();
      if (!db) {
-        const message = 'Firestore admin is not initialized. Check server environment variables or service account file.';
+        const message = 'Firestore admin is not initialized. Check server logs for initialization errors.';
         console.error(message);
         return { success: false, message };
     }
