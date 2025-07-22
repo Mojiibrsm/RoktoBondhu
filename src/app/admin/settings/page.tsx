@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { handleUpdateSettings } from '@/lib/actions';
 
 // This would typically come from a database
 const currentSettings = {
@@ -43,14 +44,6 @@ const formSchema = z.object({
     directorName: z.string().min(1, { message: 'পরিচালকের নাম আবশ্যক।' }),
 });
 
-async function handleUpdateSettings(values: z.infer<typeof formSchema>) {
-    'use server';
-    console.log("Attempting to update settings with values:", values);
-    // In a real app, you would save these values to a 'settings' collection in Firestore.
-    // For now, we just log it and simulate a successful response.
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true, message: "সেটিংস সফলভাবে আপডেট করা হয়েছে।" };
-}
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
