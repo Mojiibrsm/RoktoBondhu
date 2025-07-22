@@ -32,7 +32,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
   export default function AdminLayout({
@@ -42,6 +42,7 @@ import { useEffect } from "react";
   }) {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (!loading) {
@@ -58,6 +59,24 @@ import { useEffect } from "react";
             </div>
         )
     }
+
+    const navItems = [
+        { href: "/admin", icon: LayoutDashboard, label: "ড্যাশবোর্ড" },
+        { href: "/admin/donors", icon: Users, label: "ডোনার" },
+        { href: "/admin/requests", icon: HeartHandshake, label: "রক্তের অনুরোধ" },
+        { href: "/admin/notifications", icon: Bell, label: "নোটিফিকেশন" },
+        { href: "/admin/posts", icon: FileText, label: "ব্লগ/পোস্ট" },
+        { href: "/admin/reports", icon: ShieldAlert, label: "অভিযোগ/রিপোর্ট" },
+        { href: "/admin/manage", icon: UserCog, label: "অ্যাডমিন ম্যানেজ" },
+        { href: "/admin/data", icon: Database, label: "ডেটা" },
+        { href: "/admin/seed", icon: DatabaseZap, label: "Seed Database" },
+        { href: "/admin/rules", icon: FileLock, label: "Firestore Rules" },
+        { href: "/admin/feedback", icon: MessageSquare, label: "ফিডব্যাক" },
+        { href: "/admin/settings", icon: Settings, label: "সেটিংস" }
+    ];
+
+    const placeholderLinks = ["/admin/donors", "/admin/requests", "/admin/posts", "/admin/reports", "/admin/data", "/admin/feedback", "/admin/settings"];
+
 
     return (
         <SidebarProvider>
@@ -76,80 +95,19 @@ import { useEffect } from "react";
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin" asChild isActive>
-                                <Link href="/admin">
-                                    <LayoutDashboard />
-                                    ড্যাশবোর্ড
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <Users />
-                                ডোনার
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <HeartHandshake />
-                                রক্তের অনুরোধ
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/notifications">
-                                <Bell />
-                                নোটিফিকেশন
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <FileText />
-                                ব্লগ/পোস্ট
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <ShieldAlert />
-                                অভিযোগ/রিপোর্ট
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/manage">
-                                <UserCog />
-                                অ্যাডমিন ম্যানেজ
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <Database />
-                                ডেটা
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                         <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/seed">
-                                <DatabaseZap />
-                                Seed Database
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/rules">
-                                <FileLock />
-                                Firestore Rules
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <MessageSquare />
-                                ফিডব্যাক
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                         <SidebarMenuItem>
-                            <SidebarMenuButton href="#">
-                                <Settings />
-                                সেটিংস
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
+                        {navItems.map((item) => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton 
+                                    asChild 
+                                    isActive={pathname === item.href}
+                                >
+                                    <Link href={placeholderLinks.includes(item.href) ? "#" : item.href}>
+                                        <item.icon />
+                                        {item.label}
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
                     </SidebarMenu>
                 </SidebarContent>
                 <SidebarFooter>
