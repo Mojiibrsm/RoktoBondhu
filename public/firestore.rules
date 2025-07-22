@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -6,44 +5,43 @@ service cloud.firestore {
 
     // Helper function to check if a user is an admin
     function isAdmin() {
+      // Check if the requesting user has the 'admin' role in their own document.
       return get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Donors can only be read by anyone, but only updated by the authenticated user or an admin.
-    // New donors can be created by anyone (during signup).
-    match /donors/{userId} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if request.auth.uid == userId || isAdmin();
+    // Donors collection
+    match /donors/{donorId} {
+      // Admins can list all documents in the collection
+      allow list: if isAdmin();
+      // Anyone can read a single donor's public profile
+      allow get: if true;
+      // Only the authenticated user can update their own profile
+      allow update: if request.auth.uid == donorId || isAdmin();
+      // Users can create their own account
+      allow create: if request.auth.uid == donorId || isAdmin();
+      // Admins can delete users
       allow delete: if isAdmin();
     }
+    
+    // Allow public read access to these collections
+    match /{collection}/{docId} 
+      where collection in ['blogPosts', 'faqs', 'teamMembers', 'testimonials', 'bloodRequests'] {
+      allow get, list: if true;
+      // Only admins can write to these informational collections
+      allow write: if isAdmin();
+    }
 
-    // Public collections that can be read by anyone, but only written to by admins.
-    match /blogPosts/{postId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /faqs/{faqId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /teamMembers/{memberId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Collections that can be read by anyone and created by anyone.
-    // Only admins can update or delete.
+    // Override write rules for specific collections
     match /bloodRequests/{requestId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if isAdmin();
+        // Authenticated users can create requests
+        allow create: if request.auth.uid != null;
+        // Only admins or the user who created it can update/delete
+        // Assuming the creator's UID is stored in a 'requesterId' or 'userId' field.
+        allow update, delete: if isAdmin() || resource.data.userId == request.auth.uid;
     }
-    
-    match /testimonials/{testimonialId} {
-        allow read: if true;
-        allow create: if true;
-        allow update, delete: if isAdmin();
+     match /testimonials/{testimonialId} {
+        // Authenticated users can create testimonials
+        allow create: if request.auth.uid != null;
     }
   }
 }
