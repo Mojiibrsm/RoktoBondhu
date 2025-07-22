@@ -47,39 +47,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const userData = { uid: docSnap.id, ...docSnap.data() } as UserDocument
                 setUser(userData);
                 localStorage.setItem('user', JSON.stringify(userData));
-                return userData;
             } else {
-                logout(); // User in local storage but not in DB
+                // User in local storage but not in DB, treat as logged out
+                setUser(null);
+                localStorage.removeItem('user');
             }
         } catch (error) {
             console.error("Error fetching user document:", error);
-            // If there's an error (e.g., permissions), log out the user
-            logout();
+            setUser(null);
+            localStorage.removeItem('user');
         } finally {
             setLoading(false);
         }
-        return null;
     }, []);
 
     useEffect(() => {
-        setLoading(true);
-        try {
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                const parsedUser: UserDocument = JSON.parse(storedUser);
-                if (parsedUser?.uid) {
-                     fetchUser(parsedUser.uid);
+        const checkUserStatus = async () => {
+            setLoading(true);
+            try {
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    const parsedUser: UserDocument = JSON.parse(storedUser);
+                    if (parsedUser?.uid) {
+                        await fetchUser(parsedUser.uid);
+                    } else {
+                        setLoading(false);
+                    }
                 } else {
-                     setLoading(false);
+                    setLoading(false);
                 }
-            } else {
+            } catch (error) {
+                console.error("Failed to parse user from localStorage", error);
+                localStorage.removeItem('user');
                 setLoading(false);
             }
-        } catch (error) {
-            console.error("Failed to parse user from localStorage", error);
-            setLoading(false);
-            localStorage.removeItem('user');
-        }
+        };
+
+        checkUserStatus();
     }, [fetchUser]);
 
 
@@ -95,7 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     role: "admin",
                 } as UserDocument;
                 
-                // Directly set admin data without checking the database for this specific case
                 localStorage.setItem('user', JSON.stringify(adminData));
                 setUser(adminData);
                 return adminData;
@@ -150,11 +153,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
-        router.push('/');
+        // Use window.location to force a hard reload, clearing all state.
+        window.location.href = '/login';
     };
     
     const reloadUser = useCallback(() => {
         if(user?.uid) {
+            setLoading(true);
             fetchUser(user.uid);
         }
     }, [user, fetchUser]);
@@ -166,7 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
         reloadUser,
-    }), [user, loading, reloadUser]);
+    }), [user, loading, reloadUser, login, signup]);
 
     return (
         <AuthContext.Provider value={value}>
