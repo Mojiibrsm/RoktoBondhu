@@ -26,7 +26,7 @@ export default function DonorsPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">একজন জীবনরক্ষাকারী খুঁজুন</h1>
         <p className="text-lg md:text-xl text-foreground/80 mt-4 max-w-3xl mx-auto">
-          আপনার এলাকায় উপলব্ধ রক্তদাতাদের জন্য অনুসন্ধান করুন। আপনার একটি সাধারণ অনুসন্ধান আপনাকে একজন বীরের সাথে সংযুক্ত করতে পারে।
+        আমাদের প্ল্যাটফর্মে আপনি সহজেই আপনার এলাকার রক্তদাতাদের খুঁজে পেতে পারেন। বিভাগ, জেলা এবং উপজেলা অনুযায়ী অনুসন্ধান করে আপনার নিকটবর্তী ডোনারদের সাথে দ্রুত যোগাযোগ স্থাপন করুন।
         </p>
       </div>
 
