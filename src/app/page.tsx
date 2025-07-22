@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote } from 'lucide-react';
+import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList } from 'lucide-react';
 import { topDonors, urgentRequests, blogPosts, testimonials } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -73,7 +73,50 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+      <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">আমাদের ফিচারসমূহ</h2>
+              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                রক্তবন্ধু আপনাকে আধুনিক সব সুবিধা প্রদান করে যা রক্তদান প্রক্রিয়াকে সহজ ও কার্যকর করে তোলে।
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <div className="mb-4 bg-primary/10 rounded-full p-4">
+                <BellRing className="h-12 w-12 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold font-headline mb-2">রিয়েল-টাইম রিকোয়েস্ট</h3>
+              <p className="text-sm text-foreground/80">জরুরী রক্তের প্রয়োজনে সাথে সাথে নোটিফিকেশন পান এবং দ্রুত সাড়া দিন।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <div className="mb-4 bg-primary/10 rounded-full p-4">
+                <Navigation className="h-12 w-12 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold font-headline mb-2">লোকেশন ভিত্তিক খোঁজ</h3>
+              <p className="text-sm text-foreground/80">আপনার এলাকার নিকটবর্তী রক্তদাতাদের সহজেই খুঁজে বের করুন।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <div className="mb-4 bg-primary/10 rounded-full p-4">
+                <Mail className="h-12 w-12 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold font-headline mb-2">জরুরী নোটিফিকেশন</h3>
+              <p className="text-sm text-foreground/80">প্রয়োজনীয় মুহূর্তে SMS বা Email এর মাধ্যমে বার্তা পাঠান বা গ্রহণ করুন।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <div className="mb-4 bg-primary/10 rounded-full p-4">
+                <ClipboardList className="h-12 w-12 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold font-headline mb-2">রক্তদানের রেকর্ড</h3>
+              <p className="text-sm text-foreground/80">আপনার রক্তদানের ইতিহাস ও পরবর্তী তারিখ সহজেই ট্র্যাক করুন।</p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32 bg-background">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
