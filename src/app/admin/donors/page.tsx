@@ -1,8 +1,5 @@
 // src/app/admin/donors/page.tsx
-'use client';
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, onSnapshot, Timestamp } from 'firebase/firestore';
+import { getDonors } from '@/lib/actions';
 import {
   Card,
   CardContent,
@@ -20,8 +17,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Edit, CheckCircle } from 'lucide-react';
+import { Trash2, Edit, CheckCircle } from 'lucide-react';
 
 interface Donor {
   uid: string;
@@ -33,50 +29,39 @@ interface Donor {
   upazila: string;
   available: boolean;
   totalDonations: number;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
-export default function AdminDonorsPage() {
-  const [donors, setDonors] = useState<Donor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+// This is a server component, so we can't use hooks like useToast directly.
+// We'll add a simple placeholder for actions for now.
+async function handleAction(action: string, donorName: string) {
+    'use server';
+    console.log(`Action "${action}" triggered for donor "${donorName}". Feature not yet implemented.`);
+    // In a real app, you would implement the logic for verify, edit, delete here.
+}
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'donors'), (snapshot) => {
-      const donorsData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          ...data,
-          uid: doc.id,
-        } as Donor;
-      });
-      setDonors(donorsData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching donors: ", error);
-      toast({
-        variant: "destructive",
-        title: "ত্রুটি",
-        description: "ডোনারদের তালিকা লোড করতে ব্যর্থ হয়েছে।",
-      });
-      setLoading(false);
-    });
 
-    return () => unsubscribe();
-  }, [toast]);
+export default async function AdminDonorsPage() {
+  let donors: Donor[] = [];
+  let error: string | null = null;
 
-  const handleAction = (action: string, donorName: string) => {
-    toast({
-        title: "কার্যকলাপ প্রয়োজন",
-        description: `"${donorName}" এর জন্য "${action}" ফাংশনটি এখনও প্রয়োগ করা হয়নি।`,
-    });
+  try {
+    donors = await getDonors();
+  } catch (e: any) {
+    console.error("Error fetching donors: ", e);
+    error = "ডোনারদের তালিকা লোড করতে ব্যর্থ হয়েছে।";
   }
 
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-3xl text-destructive">ত্রুটি</CardTitle>
+          <CardDescription>
+            {error} অনুগ্রহ করে আবার চেষ্টা করুন।
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
@@ -120,15 +105,21 @@ export default function AdminDonorsPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleAction('Verify', donor.name)}>
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleAction('Edit', donor.name)}>
-                        <Edit className="h-4 w-4 text-blue-600" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleAction('Delete', donor.name)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <form action={async () => { await handleAction('Verify', donor.name)}}>
+                      <Button variant="ghost" size="icon" type="submit">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                      </Button>
+                    </form>
+                     <form action={async () => { await handleAction('Edit', donor.name)}}>
+                        <Button variant="ghost" size="icon" type="submit">
+                            <Edit className="h-4 w-4 text-blue-600" />
+                        </Button>
+                    </form>
+                    <form action={async () => { await handleAction('Delete', donor.name)}}>
+                        <Button variant="ghost" size="icon" type="submit">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </form>
                 </TableCell>
               </TableRow>
             ))}
