@@ -17,6 +17,8 @@ import {
     Database,
     MessageSquare,
     Settings,
+    DatabaseZap,
+    FileLock
   } from "lucide-react"
 import Link from "next/link";
   
@@ -32,14 +34,14 @@ import Link from "next/link";
       title: "ডোনার ম্যানেজমেন্ট",
       description: "ডোনারদের তথ্য দেখুন, সম্পাদনা করুন, মুছুন ও যাচাই করুন।",
       icon: Users,
-      href: "#", // Placeholder
+      href: "/admin/donors",
       category: "👥 Donor"
     },
     {
       title: "রক্তের অনুরোধ",
       description: "সক্রিয় অনুরোধগুলো দেখুন, ফিল্টার করুন, পূরণ করুন ও মুছুন।",
       icon: HeartHandshake,
-      href: "#", // Placeholder
+      href: "/admin/requests",
       category: "🆘 Blood Requests"
     },
     {
@@ -53,14 +55,14 @@ import Link from "next/link";
       title: "ব্লগ/পোস্ট",
       description: "সচেতনতামূলক পোস্ট পরিচালনা করুন।",
       icon: FileText,
-      href: "#", // Placeholder
+      href: "/admin/posts",
       category: "✍️ Blogs/Posts"
     },
     {
       title: "রিপোর্ট ও অভিযোগ",
       description: "অভিযোগ দেখুন এবং ভুয়া প্রোফাইল ব্লক করুন।",
       icon: ShieldAlert,
-      href: "#", // Placeholder
+      href: "/admin/reports",
       category: "🧾 Reports"
     },
     {
@@ -74,21 +76,35 @@ import Link from "next/link";
       title: "ডেটা ম্যানেজমেন্ট",
       description: "ডেটা এক্সপোর্ট ও ব্যাকআপ করুন।",
       icon: Database,
-      href: "#", // Placeholder
+      href: "/admin/data",
+      category: "📂 Data"
+    },
+    {
+      title: "Seed Database",
+      description: "ডাটাবেস এ ডেমো ডেটা যোগ করুন।",
+      icon: DatabaseZap,
+      href: "/admin/seed",
+      category: "📂 Data"
+    },
+    {
+      title: "Firestore Rules",
+      description: "Firestore নিরাপত্তা বিধি দেখুন।",
+      icon: FileLock,
+      href: "/admin/rules",
       category: "📂 Data"
     },
     {
       title: "ফিডব্যাক",
       description: "ব্যবহারকারীদের মতামত দেখুন ও উত্তর দিন।",
       icon: MessageSquare,
-      href: "#", // Placeholder
+      href: "/admin/feedback",
       category: "📬 Feedback"
     },
     {
       title: "সেটিংস",
       description: "ওয়েবসাইটের কনফিগারেশন পরিচালনা করুন।",
       icon: Settings,
-      href: "#", // Placeholder
+      href: "/admin/settings",
       category: "⚙️ Settings"
     },
   ];
