@@ -1,13 +1,36 @@
 // src/lib/actions.ts
 'use server';
-
+import * as admin from 'firebase-admin';
 import { answerFAQ } from '@/ai/flows/answer-faq';
 import { sendNotification } from '@/ai/flows/send-notification';
 import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
 import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas/notifications';
-import { db } from './firebase-admin'; // Using admin SDK for backend operations
 import { demoData } from './placeholder-data';
-import { collection, writeBatch, doc, updateDoc } from 'firebase-admin/firestore'; // Correct import for admin SDK
+import { getFirestore } from 'firebase-admin/firestore';
+
+// Helper function to initialize admin and get DB instance
+function getAdminDb() {
+  const hasCredentials =
+    process.env.FIREBASE_PROJECT_ID &&
+    process.env.FIREBASE_CLIENT_EMAIL &&
+    process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!hasCredentials) {
+    throw new Error('Firebase admin environment variables are not set.');
+  }
+
+  if (admin.apps.length === 0) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+    });
+  }
+  return getFirestore();
+}
+
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -38,13 +61,8 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 }
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
-    if (!db || typeof db.batch !== 'function') {
-        const message = "Firestore admin is not initialized. Check server environment variables.";
-        console.error(`Error seeding collection ${collectionName}:`, message);
-        return { success: false, message };
-    }
-    
     try {
+        const db = getAdminDb();
         const batch = db.batch();
         const dataToSeed = demoData[collectionName];
 
@@ -88,12 +106,8 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 }
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
-     if (!db || typeof db.doc !== 'function') {
-        const message = "Firestore admin is not initialized. Check server environment variables.";
-        console.error(`Error updating role for UID ${uid}:`, message);
-        return { success: false, message };
-    }
     try {
+        const db = getAdminDb();
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
         const userRef = db.doc(`donors/${uid}`);
         await userRef.update({ role: role });
