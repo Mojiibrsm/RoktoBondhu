@@ -18,9 +18,10 @@ function getAdminDb() {
   };
 
   if (admin.apps.length === 0) {
-    admin.initializeApp({
+    const app = admin.initializeApp({
       credential: admin.credential.cert(serviceAccountParams),
     });
+    return getFirestore(app);
   }
   return getFirestore();
 }
@@ -77,7 +78,7 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
                     if (['createdAt', 'dateOfBirth', 'lastDonation', 'postedTime', 'date'].includes(key) && typeof itemWithDates[key] === 'string') {
                          const date = new Date(itemWithDates[key]);
                          if (!isNaN(date.getTime())) {
-                            itemWithDates[key] = date;
+                            itemWithDates[key] = admin.firestore.Timestamp.fromDate(date);
                          }
                     }
                 }
