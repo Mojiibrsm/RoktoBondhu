@@ -1,6 +1,8 @@
 'use server';
 
 import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-faq';
+import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
+
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -13,5 +15,19 @@ export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFA
     console.error("Error in answerFAQOnServer:", error);
     // In a real app, you might want to log this error to a monitoring service
     throw new Error("Failed to get an answer from the AI service.");
+  }
+}
+
+export async function sendNotificationOnServer(input: SendNotificationInput): Promise<SendNotificationOutput> {
+  // Add authentication/authorization checks here to ensure only admins can use this.
+  console.log('Sending notification:', input);
+  try {
+    // This is a simulated flow. In a real app, this would integrate
+    // with an email/SMS provider like SendGrid or Twilio.
+    const result = await sendNotification(input);
+    return result;
+  } catch (error) {
+    console.error("Error in sendNotificationOnServer:", error);
+    throw new Error("Failed to send notification.");
   }
 }
