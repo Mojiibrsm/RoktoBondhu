@@ -235,17 +235,21 @@ export async function getFeedback() {
     return feedback;
 }
 
-const formSchema = z.object({
+const settingsSchema = z.object({
   siteName: z.string().min(1, { message: 'সাইটের নাম আবশ্যক।' }),
   tagline: z.string().min(1, { message: 'ট্যাগলাইন আবশ্যক।' }),
-  directorMessage: z.string().min(10, { message: 'বার্তাটি কমপক্ষে ১০ অক্ষরের হতে হবে।' }),
-  directorName: z.string().min(1, { message: 'পরিচালকের নাম আবশ্যক।' }),
+  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, { message: 'সঠিক হেক্স কোড লিখুন (যেমন, #A92116)।' }),
+  metaTitle: z.string().min(1, { message: 'মেটা টাইটেল আবশ্যক।' }),
+  metaDescription: z.string().min(1, { message: 'মেটা বর্ণনা আবশ্যক।' }),
 });
 
-export async function handleUpdateSettings(values: z.infer<typeof formSchema>) {
+
+export async function handleUpdateSettings(values: z.infer<typeof settingsSchema>) {
     console.log("Attempting to update settings with values:", values);
     // In a real app, you would save these values to a 'settings' collection in Firestore.
     // For now, we just log it and simulate a successful response.
+    const validatedData = settingsSchema.parse(values);
+    console.log("Validated settings data:", validatedData);
     await new Promise(resolve => setTimeout(resolve, 1000));
     return { success: true, message: "সেটিংস সফলভাবে আপডেট করা হয়েছে।" };
 }
