@@ -83,6 +83,7 @@ const upazilas: { [key: string]: string[] } = {
     'চট্টগ্রাম': ['কোতোয়ালী', 'পাঁচলাইশ', 'ডবলমুরিং', 'চান্দগাঁও', 'হালিশহর', 'খুলশী'],
     'রাজশাহী': ['বোয়ালিয়া', 'শাহমখদুম', 'মতিহার', 'রাজপাড়া'],
     'খুলনা': ['খুলনা সদর', 'সোনাডাঙ্গা', 'দৌলতপুর'],
+    'সাতক্ষীরা': ['সাতক্ষীরা সদর', 'আশাশুনি', 'দেবহাটা', 'কলারোয়া', 'কালিগঞ্জ', 'শ্যামনগর', 'তালা'],
     'সিলেট': ['সিলেট সদর', 'দক্ষিণ সুরমা', 'শাহপরাণ'],
     'বরিশাল': ['বরিশাল সদর', 'বন্দর'],
     'রংপুর': ['রংপুর সদর', 'তাজহাট'],
@@ -246,7 +247,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="লিঙ্গ নির্বাচন করুন" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="male">পুরুষ</SelectItem>
@@ -459,5 +460,5 @@ export default function RegisterPage() {
             </CardContent>
         </Card>
     </div>
-  )
+  );
 }
