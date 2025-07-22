@@ -39,12 +39,13 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { divisions, districts, upazilas } from "@/lib/placeholder-data";
-import { db } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+
 
 const formSchema = z.object({
   fullName: z.string().min(1, { message: "পুরো নাম আবশ্যক।" }),
-  email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }).optional().or(z.literal('')),
+  email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
   phoneNumber: z.string().min(1, { message: "ফোন নম্বর আবশ্যক।" }),
   password: z.string().min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" }),
   dateOfBirth: z.date({ required_error: "জন্ম তারিখ আবশ্যক।" }),
@@ -61,6 +62,8 @@ const formSchema = z.object({
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
+    const { signup } = useAuth();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -70,7 +73,7 @@ export default function RegisterPage() {
             phoneNumber: "",
             password: "",
             availableToDonate: true,
-            totalDonations: 0
+            totalDonations: 0,
         },
     });
 
@@ -80,12 +83,10 @@ export default function RegisterPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
         try {
-            const docRef = await addDoc(collection(db, "donors"), {
+            await signup(values.email, values.password, {
                 name: values.fullName,
                 email: values.email,
                 phone: values.phoneNumber,
-                // In a real app, password should be hashed before saving or use Firebase Auth
-                // password: values.password, 
                 dateOfBirth: values.dateOfBirth,
                 gender: values.gender,
                 bloodType: values.bloodType,
@@ -96,19 +97,19 @@ export default function RegisterPage() {
                 upazila: values.upazila,
                 available: values.availableToDonate,
                 createdAt: new Date(),
+                role: 'user' // Default role
             });
-            console.log("Document written with ID: ", docRef.id);
             toast({
                 title: "সফল!",
-                description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
+                description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে। প্রোফাইলে আপনাকে রিডাইরেক্ট করা হচ্ছে।",
             });
-            form.reset();
-        } catch (e) {
+            router.push("/profile");
+        } catch (e: any) {
             console.error("Error adding document: ", e);
             toast({
                 variant: "destructive",
                 title: "ত্রুটি!",
-                description: "নিবন্ধন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+                description: e.message || "নিবন্ধন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
             });
         } finally {
             setLoading(false);
@@ -140,7 +141,7 @@ export default function RegisterPage() {
                                 )}/>
                                 <FormField control={form.control} name="email" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>ইমেল (ঐচ্ছিক)</FormLabel>
+                                        <FormLabel>ইমেল</FormLabel>
                                         <FormControl><Input type="email" placeholder="m@example.com" {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -296,9 +297,6 @@ export default function RegisterPage() {
                              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg" disabled={loading}>
                                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 {loading ? 'প্রসেস হচ্ছে...' : 'অ্যাকাউন্ট তৈরি করুন'}
-                            </Button>
-                            <Button variant="outline" className="w-full text-lg">
-                                গুগল দিয়ে সাইন আপ করুন
                             </Button>
                         </div>
                     </form>

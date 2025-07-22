@@ -1,5 +1,5 @@
-
 // src/app/admin/layout.tsx
+'use client';
 import {
     SidebarProvider,
     Sidebar,
@@ -24,16 +24,39 @@ import {
     MessageSquare,
     Settings,
     Home,
+    Loader2
   } from "lucide-react"
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
   export default function AdminLayout({
     children,
   }: {
     children: React.ReactNode
   }) {
+    const { user, userDoc, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading) {
+            if (!user || userDoc?.role !== 'admin') {
+                router.push('/login');
+            }
+        }
+    }, [user, userDoc, loading, router]);
+
+    if(loading || !userDoc || userDoc.role !== 'admin') {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        )
+    }
+
     return (
         <SidebarProvider>
             <Sidebar>
@@ -41,11 +64,11 @@ import { Button } from "@/components/ui/button";
                     <div className="flex items-center gap-2">
                         <Avatar className="size-8">
                             <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="male portrait" />
-                            <AvatarFallback>A</AvatarFallback>
+                            <AvatarFallback>{userDoc.name?.[0]}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold">Admin Panel</span>
-                            <span className="text-xs text-muted-foreground">রক্তবন্ধু</span>
+                            <span className="text-sm font-semibold">{userDoc.name}</span>
+                            <span className="text-xs text-muted-foreground">অ্যাডমিন</span>
                         </div>
                     </div>
                 </SidebarHeader>

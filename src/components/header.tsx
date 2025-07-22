@@ -1,7 +1,10 @@
+'use client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Droplet } from 'lucide-react';
+import { Menu, Droplet, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/donors', label: 'দাতা খুঁজুন' },
@@ -11,6 +14,14 @@ const navLinks = [
 ];
 
 export function Header() {
+  const { user, userDoc, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -64,12 +75,25 @@ export function Header() {
             </div>
             <div className="mt-6 pt-6 border-t">
                  <div className="flex flex-col space-y-2">
-                    <Button asChild variant="outline" className="border-accent text-accent">
-                        <Link href="/login">লগ ইন</Link>
-                    </Button>
-                    <Button asChild className="bg-primary hover:bg-primary/90">
-                        <Link href="/register">নিবন্ধন</Link>
-                    </Button>
+                    {user ? (
+                        <>
+                            <Button asChild variant="outline" className="border-accent text-accent">
+                                <Link href={userDoc?.role === 'admin' ? '/admin' : '/profile'}>প্রোফাইল</Link>
+                            </Button>
+                            <Button onClick={handleLogout} variant="destructive">
+                                <LogOut className="mr-2" /> লগ আউট
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button asChild variant="outline" className="border-accent text-accent">
+                                <Link href="/login">লগ ইন</Link>
+                            </Button>
+                            <Button asChild className="bg-primary hover:bg-primary/90">
+                                <Link href="/register">নিবন্ধন</Link>
+                            </Button>
+                        </>
+                    )}
                  </div>
             </div>
           </SheetContent>
@@ -77,12 +101,28 @@ export function Header() {
         
         <div className="flex flex-1 items-center justify-end space-x-2">
             <div className="hidden md:flex md:space-x-2">
-                <Button asChild variant="outline" className="border-accent text-accent">
-                    <Link href="/login">লগ ইন</Link>
-                </Button>
-                <Button asChild className="bg-primary hover:bg-primary/90">
-                    <Link href="/register">নিবন্ধন</Link>
-                </Button>
+                {user ? (
+                    <>
+                        <Button asChild variant="ghost">
+                             <Link href={userDoc?.role === 'admin' ? '/admin' : '/profile'}>
+                                 <User className="mr-2" />
+                                 {userDoc?.name || 'প্রোফাইল'}
+                             </Link>
+                        </Button>
+                        <Button onClick={handleLogout} variant="outline">
+                            <LogOut className="mr-2" /> লগ আউট
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button asChild variant="outline" className="border-accent text-accent">
+                            <Link href="/login">লগ ইন</Link>
+                        </Button>
+                        <Button asChild className="bg-primary hover:bg-primary/90">
+                            <Link href="/register">নিবন্ধন</Link>
+                        </Button>
+                    </>
+                )}
             </div>
         </div>
       </div>
