@@ -1,34 +1,25 @@
 // src/lib/actions.ts
 'use server';
 import * as admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 import { answerFAQ } from '@/ai/flows/answer-faq';
 import { sendNotification } from '@/ai/flows/send-notification';
 import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
 import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas/notifications';
 import { demoData } from './placeholder-data';
-import { getFirestore } from 'firebase-admin/firestore';
-import { config } from 'dotenv';
-
-config(); // Load environment variables from .env file
+import serviceAccount from '../serviceAccountKey.json';
 
 // Helper function to initialize admin and get DB instance
 function getAdminDb() {
-  const hasCredentials =
-    process.env.FIREBASE_PROJECT_ID &&
-    process.env.FIREBASE_CLIENT_EMAIL &&
-    process.env.FIREBASE_PRIVATE_KEY;
-
-  if (!hasCredentials) {
-    throw new Error('Firebase admin environment variables are not set.');
-  }
+  const serviceAccountParams = {
+    projectId: serviceAccount.project_id,
+    clientEmail: serviceAccount.client_email,
+    privateKey: serviceAccount.private_key,
+  };
 
   if (admin.apps.length === 0) {
     admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
+      credential: admin.credential.cert(serviceAccountParams),
     });
   }
   return getFirestore();
