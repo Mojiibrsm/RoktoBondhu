@@ -10,6 +10,7 @@ interface UserDocument {
     email: string;
     name: string;
     role: 'user' | 'admin';
+    password?: string; // Password should not be stored in plaintext in a real app
     [key: string]: any;
 }
 
@@ -65,7 +66,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (storedUser) {
                 const parsedUser: UserDocument = JSON.parse(storedUser);
                 if (parsedUser?.uid) {
-                    fetchUser(parsedUser.uid).finally(() => setLoading(false));
+                    // To prevent infinite loops and ensure user data is fresh on reload
+                    if (!user || user.uid !== parsedUser.uid) {
+                         fetchUser(parsedUser.uid).finally(() => setLoading(false));
+                    } else {
+                         setLoading(false);
+                    }
                 } else {
                      setLoading(false);
                 }
@@ -77,21 +83,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(false);
             localStorage.removeItem('user');
         }
-    }, [fetchUser]);
+    }, []);
+
 
     const login = async (email: string, pass: string): Promise<UserDocument | null> => {
         setLoading(true);
         try {
-            const q = query(collection(db, "donors"), where("email", "==", email), where("password", "==", pass));
+            // Query only by email to avoid composite index requirement
+            const q = query(collection(db, "donors"), where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                console.log("No matching user found.");
+                console.log("No matching user found for email.");
                 throw new Error("Invalid credentials");
             }
 
             const userDoc = querySnapshot.docs[0];
             const userData = { uid: userDoc.id, ...userDoc.data() } as UserDocument;
+            
+            // Verify password in the client-side code
+            // THIS IS NOT SECURE. In a real app, use Firebase Auth or a backend with hashing.
+            if (userData.password !== pass) {
+                console.log("Password does not match.");
+                throw new Error("Invalid credentials");
+            }
 
             localStorage.setItem('user', JSON.stringify(userData));
             setUser(userData);
@@ -101,14 +116,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+
     const signup = async (data: any): Promise<UserDocument | null> => {
         setLoading(true);
         try {
-            const { password, ...userData } = data; // Separate password from other data
-            // In a real app, password should be hashed before storing.
+             // In a real app, password should be hashed before storing.
             // Storing plain text passwords is a major security risk.
-            const storedData = { ...userData, password: password };
-
+            const storedData = { ...data };
+            
             // Firestore doesn't allow `undefined` values. Convert them to `null`.
             if (storedData.lastDonation === undefined) {
                 storedData.lastDonation = null;
@@ -145,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
         reloadUser,
-    }), [user, loading]);
+    }), [user, loading, reloadUser]);
 
     return (
         <AuthContext.Provider value={value}>
