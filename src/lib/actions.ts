@@ -3,7 +3,7 @@
 
 import { answerFAQ, AnswerFAQInput, AnswerFAQOutput } from '@/ai/flows/answer-faq';
 import { sendNotification, SendNotificationInput, SendNotificationOutput } from '@/ai/flows/send-notification';
-import { db, auth } from './firebase-admin'; // Switch to admin SDK
+import { db } from './firebase-admin'; // Using admin SDK for backend operations
 import { demoData } from './placeholder-data';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 
@@ -35,31 +35,6 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
   }
 }
 
-async function createAuthUser(uid: string, email: string, pass: string, role: string) {
-    try {
-        await auth.createUser({
-            uid: uid,
-            email: email,
-            password: pass,
-        });
-        await auth.setCustomUserClaims(uid, { role });
-        console.log(`Successfully created auth user: ${email} with role: ${role}`);
-    } catch(error: any) {
-        if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
-            console.log(`Auth user ${email} already exists. Setting custom claims.`);
-            try {
-                await auth.setCustomUserClaims(uid, { role });
-            } catch (claimError) {
-                console.error(`Failed to set custom claims for ${email}:`, claimError);
-            }
-        } else {
-            console.error(`Error creating auth user ${email}:`, error);
-            throw error;
-        }
-    }
-}
-
-
 export async function seedDatabase(collectionName: keyof typeof demoData) {
     try {
         const batch = writeBatch(db);
@@ -72,13 +47,13 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
         console.log(`Starting to seed collection: ${collectionName}`);
 
         for (const item of dataToSeed) {
+            // Use the provided id for the document ID
             const docRef = doc(collection(db, collectionName), item.id);
 
             // Handle date conversion if needed
             const itemWithDates: { [key: string]: any } = { ...item };
             for (const key in itemWithDates) {
                 if (Object.prototype.hasOwnProperty.call(itemWithDates, key)) {
-                    // Check for common date fields and if they are string representations
                     if (['createdAt', 'dateOfBirth', 'lastDonation', 'postedTime', 'date'].includes(key) && typeof itemWithDates[key] === 'string') {
                          const date = new Date(itemWithDates[key]);
                          if (!isNaN(date.getTime())) {
@@ -87,23 +62,10 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
                     }
                 }
             }
-
-            // Remove password from the object that will be stored in Firestore
-            const firestoreData = { ...itemWithDates };
-            if ('password' in firestoreData) {
-                delete firestoreData.password;
-            }
-
-
-            batch.set(docRef, firestoreData);
-
-            // If we are seeding donors, create auth users for them
-            if (collectionName === 'donors') {
-                const { id, email, password, role } = item as any;
-                 if (id && email && password && role) {
-                    await createAuthUser(id, email, password, role);
-                }
-            }
+            
+            // The entire item (including plaintext password for demo) will be seeded.
+            // In a real application, NEVER store plaintext passwords.
+            batch.set(docRef, itemWithDates);
         }
 
         await batch.commit();

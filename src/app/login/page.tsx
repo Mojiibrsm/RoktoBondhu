@@ -34,7 +34,7 @@ const formSchema = z.object({
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { login, user, userDoc } = useAuth();
+    const { login, user } = useAuth();
     const { toast } = useToast();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -48,21 +48,21 @@ export default function LoginPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
         try {
-            const userCredential = await login(values.email, values.password);
-            if(userCredential) {
-              const idTokenResult = await userCredential.user.getIdTokenResult();
-              const userRole = idTokenResult.claims.role;
-
+            const loggedInUser = await login(values.email, values.password);
+            
+            if (loggedInUser) {
               toast({
                   title: "সফল!",
                   description: "আপনি সফলভাবে লগইন করেছেন।",
               });
 
-              if (userRole === 'admin') {
+              if (loggedInUser.role === 'admin') {
                   router.push("/admin");
               } else {
                   router.push("/profile");
               }
+            } else {
+                 throw new Error("Invalid credentials");
             }
 
         } catch (error: any) {
@@ -77,8 +77,8 @@ export default function LoginPage() {
         }
     }
 
-    if (user && userDoc) {
-      if (userDoc.role === 'admin') {
+    if (user) {
+      if (user.role === 'admin') {
         router.push('/admin');
       } else {
         router.push('/profile');

@@ -44,19 +44,19 @@ import { useRouter } from "next/navigation";
 
 
 const formSchema = z.object({
-  fullName: z.string().min(1, { message: "পুরো নাম আবশ্যক।" }),
+  name: z.string().min(1, { message: "পুরো নাম আবশ্যক।" }),
   email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
-  phoneNumber: z.string().min(1, { message: "ফোন নম্বর আবশ্যক।" }),
+  phone: z.string().min(1, { message: "ফোন নম্বর আবশ্যক।" }),
   password: z.string().min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" }),
   dateOfBirth: z.date({ required_error: "জন্ম তারিখ আবশ্যক।" }),
   gender: z.string({ required_error: "লিঙ্গ নির্বাচন করুন।" }),
   bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
-  lastDonationDate: z.date().optional(),
+  lastDonation: z.date().optional(),
   totalDonations: z.coerce.number().min(0, {message: "অনুগ্রহ করে একটি সঠিক সংখ্যা লিখুন।"}).optional(),
   division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
   district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
   upazila: z.string({ required_error: "উপজেলা নির্বাচন করুন।" }),
-  availableToDonate: z.boolean().default(true),
+  available: z.boolean().default(true),
 });
 
 export default function RegisterPage() {
@@ -68,11 +68,11 @@ export default function RegisterPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            fullName: "",
+            name: "",
             email: "",
-            phoneNumber: "",
+            phone: "",
             password: "",
-            availableToDonate: true,
+            available: true,
             totalDonations: 0,
         },
     });
@@ -83,19 +83,8 @@ export default function RegisterPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
         try {
-            await signup(values.email, values.password, {
-                name: values.fullName,
-                email: values.email,
-                phone: values.phoneNumber,
-                dateOfBirth: values.dateOfBirth,
-                gender: values.gender,
-                bloodType: values.bloodType,
-                lastDonation: values.lastDonationDate,
-                totalDonations: values.totalDonations,
-                division: values.division,
-                district: values.district,
-                upazila: values.upazila,
-                available: values.availableToDonate,
+            await signup({
+                ...values,
                 createdAt: new Date(),
                 role: 'user' // Default role
             });
@@ -132,7 +121,7 @@ export default function RegisterPage() {
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold text-foreground/80 border-b pb-2">ব্যক্তিগত তথ্য</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField control={form.control} name="fullName" render={({ field }) => (
+                                <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>পুরো নাম</FormLabel>
                                         <FormControl><Input placeholder="আপনার পুরো নাম" {...field} /></FormControl>
@@ -146,7 +135,7 @@ export default function RegisterPage() {
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                                <FormField control={form.control} name="phoneNumber" render={({ field }) => (
+                                <FormField control={form.control} name="phone" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>ফোন নম্বর</FormLabel>
                                         <FormControl><Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} /></FormControl>
@@ -218,7 +207,7 @@ export default function RegisterPage() {
                                     <FormMessage />
                                     </FormItem>
                                 )}/>
-                                <FormField control={form.control} name="lastDonationDate" render={({ field }) => (
+                                <FormField control={form.control} name="lastDonation" render={({ field }) => (
                                     <FormItem className="flex flex-col">
                                     <FormLabel>শেষ রক্তদানের তারিখ (ঐচ্ছিক)</FormLabel>
                                     <Popover>
@@ -283,7 +272,7 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        <FormField control={form.control} name="availableToDonate" render={({ field }) => (
+                        <FormField control={form.control} name="available" render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
                             <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                             <div className="space-y-1 leading-none">

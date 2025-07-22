@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
-    const { user, userDoc, loading } = useAuth();
+    const { user, loading, logout, reloadUser } = useAuth();
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
@@ -43,7 +43,7 @@ export default function ProfilePage() {
         lastDonation: '',
         available: true,
     });
-
+    
     useEffect(() => {
         if (!loading && !user) {
             router.push('/login');
@@ -51,18 +51,18 @@ export default function ProfilePage() {
     }, [user, loading, router]);
     
     useEffect(() => {
-        if(userDoc) {
+        if(user) {
             setFormData({
-                name: userDoc.name || '',
-                phone: userDoc.phone || '',
-                division: userDoc.division || '',
-                district: userDoc.district || '',
-                upazila: userDoc.upazila || '',
-                lastDonation: userDoc.lastDonation?.toDate ? userDoc.lastDonation.toDate().toISOString().split('T')[0] : '',
-                available: userDoc.available ?? true,
+                name: user.name || '',
+                phone: user.phone || '',
+                division: user.division || '',
+                district: user.district || '',
+                upazila: user.upazila || '',
+                lastDonation: user.lastDonation?.toDate ? user.lastDonation.toDate().toISOString().split('T')[0] : '',
+                available: user.available ?? true,
             })
         }
-    }, [userDoc]);
+    }, [user]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -91,6 +91,7 @@ export default function ProfilePage() {
                 lastDonation: formData.lastDonation ? new Date(formData.lastDonation) : null,
                 available: formData.available,
             });
+            reloadUser(); // Reload user data from context
             toast({
                 title: "সফল!",
                 description: "আপনার প্রোফাইল সফলভাবে আপডেট করা হয়েছে।",
@@ -108,7 +109,7 @@ export default function ProfilePage() {
     }
 
 
-    if (loading || !userDoc) {
+    if (loading || !user) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -130,21 +131,21 @@ export default function ProfilePage() {
                 <Card className="shadow-lg sticky top-24">
                     <CardHeader className="items-center text-center">
                         <User className="w-20 h-20 text-primary mb-4" />
-                        <CardTitle className="font-headline text-3xl">{userDoc.name}</CardTitle>
-                        <CardDescription>{user?.email}</CardDescription>
+                        <CardTitle className="font-headline text-3xl">{user.name}</CardTitle>
+                        <CardDescription>{user.email}</CardDescription>
                     </CardHeader>
                     <CardContent className="text-center space-y-3">
                         <div className="flex items-center justify-center gap-2">
                             <Droplet className="w-5 h-5 text-primary" />
-                            <span className="text-lg font-bold">{userDoc.bloodType}</span>
+                            <span className="text-lg font-bold">{user.bloodType}</span>
                         </div>
                         <div className="flex items-center justify-center gap-2 text-muted-foreground">
                             <MapPin className="w-5 h-5" />
-                            <span>{userDoc.upazila}, {userDoc.district}</span>
+                            <span>{user.upazila}, {user.district}</span>
                         </div>
                          <div className="flex items-center justify-center gap-2 text-muted-foreground">
                             <HeartHandshake className="w-5 h-5 text-primary" />
-                            <span>মোট রক্তদান: {userDoc.totalDonations || 0} বার</span>
+                            <span>মোট রক্তদান: {user.totalDonations || 0} বার</span>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-2">
@@ -171,7 +172,7 @@ export default function ProfilePage() {
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="email">ইমেল ঠিকানা</Label>
-                            <Input id="email" type="email" value={user?.email || ''} disabled />
+                            <Input id="email" type="email" value={user.email || ''} disabled />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone">ফোন নম্বর</Label>

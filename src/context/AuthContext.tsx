@@ -1,16 +1,9 @@
 // src/context/AuthContext.tsx
 'use client';
-import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
-import { 
-    getAuth, 
-    onAuthStateChanged, 
-    User, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut 
-} from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from '@/lib/firebase';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback } from 'react';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 interface UserDocument {
     uid: string;
@@ -21,92 +14,127 @@ interface UserDocument {
 }
 
 interface AuthContextType {
-    user: User | null;
-    userDoc: UserDocument | null;
+    user: UserDocument | null;
     loading: boolean;
-    login: (email: string, pass: string) => Promise<any>;
-    signup: (email: string, pass: string, data: object) => Promise<any>;
-    logout: () => Promise<void>;
+    login: (email: string, pass: string) => Promise<UserDocument | null>;
+    signup: (data: any) => Promise<UserDocument | null>;
+    logout: () => void;
+    reloadUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
-    userDoc: null,
     loading: true,
-    login: async () => {},
-    signup: async () => {},
-    logout: async () => {},
+    login: async () => null,
+    signup: async () => null,
+    logout: () => {},
+    reloadUser: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [userDoc, setUserDoc] = useState<UserDocument | null>(null);
+    const [user, setUser] = useState<UserDocument | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUser(user);
-                const userRef = doc(db, 'donors', user.uid);
-                try {
-                    const docSnap = await getDoc(userRef);
-                    if (docSnap.exists()) {
-                        setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
-                    } else {
-                        // User exists in Auth, but not in Firestore. Maybe a new user.
-                        setUserDoc(null); 
-                    }
-                } catch (error) {
-                    console.error("Error fetching user document:", error);
-                    console.error("This is likely due to Firestore security rules. Please deploy the firestore.rules file.");
-                    // Set a fallback userDoc to prevent infinite loading
-                    setUserDoc({ uid: user.uid, email: user.email || '', name: 'ব্যবহারকারী', role: 'user' });
-                }
+    const fetchUser = useCallback(async (uid: string) => {
+        const userRef = doc(db, 'donors', uid);
+        try {
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                const userData = { uid: docSnap.id, ...docSnap.data() } as UserDocument
+                setUser(userData);
+                localStorage.setItem('user', JSON.stringify(userData));
+                return userData;
             } else {
-                setUser(null);
-                setUserDoc(null);
+                logout(); // User in local storage but not in DB
             }
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
+        } catch (error) {
+            console.error("Error fetching user document:", error);
+        }
+        return null;
     }, []);
 
-    const login = (email: string, pass: string) => {
+    useEffect(() => {
         setLoading(true);
-        return signInWithEmailAndPassword(auth, email, pass);
+        try {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const parsedUser: UserDocument = JSON.parse(storedUser);
+                fetchUser(parsedUser.uid).finally(() => setLoading(false));
+            } else {
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error("Failed to parse user from localStorage", error);
+            setLoading(false);
+        }
+    }, [fetchUser]);
+
+    const login = async (email: string, pass: string): Promise<UserDocument | null> => {
+        setLoading(true);
+        try {
+            const q = query(collection(db, "donors"), where("email", "==", email), where("password", "==", pass));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                console.log("No matching user found.");
+                throw new Error("Invalid credentials");
+            }
+
+            const userDoc = querySnapshot.docs[0];
+            const userData = { uid: userDoc.id, ...userDoc.data() } as UserDocument;
+
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            return userData;
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const signup = async (email: string, pass: string, data: object) => {
+    const signup = async (data: any): Promise<UserDocument | null> => {
         setLoading(true);
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-        const userRef = doc(db, "donors", user.uid);
-        const userData = {
-            ...data,
-            uid: user.uid,
-            email: user.email,
-        };
-        await setDoc(userRef, userData);
-        setUserDoc(userData as UserDocument);
-        setLoading(false);
-        return userCredential;
+        try {
+             const { password, ...userData } = data; // Separate password from other data
+            // In a real app, password should be hashed before storing.
+            // Storing plain text passwords is a major security risk.
+            const storedData = { ...userData, password: password };
+
+            const userRef = doc(collection(db, "donors"));
+            await setDoc(userRef, storedData);
+
+            const newUser = { uid: userRef.id, ...storedData } as UserDocument;
+            localStorage.setItem('user', JSON.stringify(newUser));
+            setUser(newUser);
+            return newUser;
+        } finally {
+            setLoading(false);
+        }
     };
 
     const logout = () => {
-        return signOut(auth);
+        setUser(null);
+        localStorage.removeItem('user');
+        router.push('/');
     };
+    
+    const reloadUser = useCallback(() => {
+        if(user?.uid) {
+            fetchUser(user.uid);
+        }
+    }, [user, fetchUser]);
 
     const value = useMemo(() => ({
         user,
-        userDoc,
+        userDoc: user, // for compatibility
         loading,
         login,
         signup,
         logout,
-    }), [user, userDoc, loading]);
+        reloadUser,
+    }), [user, loading, login, signup, logout, reloadUser]);
 
     return (
         <AuthContext.Provider value={value}>

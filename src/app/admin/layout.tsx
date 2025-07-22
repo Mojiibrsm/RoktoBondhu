@@ -39,18 +39,18 @@ import { useEffect } from "react";
   }: {
     children: React.ReactNode
   }) {
-    const { user, userDoc, loading } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!loading) {
-            if (!user || userDoc?.role !== 'admin') {
+            if (!user || user.role !== 'admin') {
                 router.push('/login');
             }
         }
-    }, [user, userDoc, loading, router]);
+    }, [user, loading, router]);
 
-    if(loading || !userDoc || userDoc.role !== 'admin') {
+    if(loading || !user || user.role !== 'admin') {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -65,10 +65,10 @@ import { useEffect } from "react";
                     <div className="flex items-center gap-2">
                         <Avatar className="size-8">
                             <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="male portrait" />
-                            <AvatarFallback>{userDoc.name?.[0]}</AvatarFallback>
+                            <AvatarFallback>{user.name?.[0]}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold">{userDoc.name}</span>
+                            <span className="text-sm font-semibold">{user.name}</span>
                             <span className="text-xs text-muted-foreground">অ্যাডমিন</span>
                         </div>
                     </div>

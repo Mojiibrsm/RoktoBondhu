@@ -14,11 +14,11 @@ const navLinks = [
 ];
 
 export function Header() {
-  const { user, userDoc, logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
     router.push('/');
   };
 
@@ -78,7 +78,7 @@ export function Header() {
                     {user ? (
                         <>
                             <Button asChild variant="outline" className="border-accent text-accent">
-                                <Link href={userDoc?.role === 'admin' ? '/admin' : '/profile'}>প্রোফাইল</Link>
+                                <Link href={user.role === 'admin' ? '/admin' : '/profile'}>প্রোফাইল</Link>
                             </Button>
                             <Button onClick={handleLogout} variant="destructive">
                                 <LogOut className="mr-2" /> লগ আউট
@@ -104,9 +104,9 @@ export function Header() {
                 {user ? (
                     <>
                         <Button asChild variant="ghost">
-                             <Link href={userDoc?.role === 'admin' ? '/admin' : '/profile'}>
+                             <Link href={user.role === 'admin' ? '/admin' : '/profile'}>
                                  <User className="mr-2" />
-                                 {userDoc?.name || 'প্রোফাইল'}
+                                 {user.name || 'প্রোফাইল'}
                              </Link>
                         </Button>
                         <Button onClick={handleLogout} variant="outline">
