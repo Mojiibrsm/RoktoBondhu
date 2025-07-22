@@ -205,10 +205,31 @@ export const demoData = {
           location: "Chittagong Maa-O-Shishu Hospital",
           division: "চট্টগ্রাম",
           district: "চট্টগ্রাম",
-          upazila: "পাঁচলাইש",
+          upazila: "পাঁচলাইশ",
           status: "সক্রিয়",
           postedTime: "2024-07-21T12:00:00Z",
           reason: "Scheduled C-section delivery tomorrow morning. A- blood is needed on standby."
       }
+  ],
+  reports: [
+    {
+      id: "report-1",
+      reportedBy: "regular-user-1",
+      reportedUser: "spam-user-123",
+      reason: "This user is sending spam messages and has a fake profile picture.",
+      status: "পেন্ডিং",
+      date: "2024-07-20T14:00:00Z",
+      type: "Spam / Fake Profile"
+    },
+     {
+      id: "report-2",
+      reportedBy: "admin-user",
+      reportedUser: "abuser-456",
+      reason: "The user was abusive in chat and demanded money for blood donation, which is against our policy.",
+      status: "সমাধান হয়েছে",
+      date: "2024-07-19T18:30:00Z",
+      type: "Abuse / Misconduct"
+    }
   ]
 };
+
