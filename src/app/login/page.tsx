@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -45,6 +45,16 @@ export default function LoginPage() {
         },
     });
 
+    useEffect(() => {
+      if (user) {
+        if (user.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/profile');
+        }
+      }
+    }, [user, router]);
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
         try {
@@ -56,11 +66,7 @@ export default function LoginPage() {
                   description: "আপনি সফলভাবে লগইন করেছেন।",
               });
 
-              if (loggedInUser.role === 'admin') {
-                  router.push("/admin");
-              } else {
-                  router.push("/profile");
-              }
+              // Redirection is now handled by the useEffect hook
             } else {
                  throw new Error("Invalid credentials");
             }
@@ -78,11 +84,6 @@ export default function LoginPage() {
     }
 
     if (user) {
-      if (user.role === 'admin') {
-        router.push('/admin');
-      } else {
-        router.push('/profile');
-      }
       return <div className="container py-12 md:py-16 text-center">লোড হচ্ছে...</div>;
     }
 
