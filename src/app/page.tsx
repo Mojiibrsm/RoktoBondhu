@@ -17,18 +17,18 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary">
-                  সংযোগ করুন। দান করুন। জীবন বাঁচান।
+                  রক্ত দিন, জীবন বাঁচান
                 </h1>
                 <p className="max-w-[600px] text-foreground/80 md:text-xl">
-                  রক্তবন্ধু রক্তদাতা খুঁজে পেতে এবং প্রয়োজনের সময় রক্তের জন্য অনুরোধ করার একটি প্ল্যাটফর্ম। আমাদের সম্প্রদায়ে যোগ দিন এবং একটি পরিবর্তন আনুন।
+                  একটি ক্লিকেই খুঁজুন রক্তদাতা
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                  <Link href="/donors">দাতা খুঁজুন</Link>
+                  <Link href="/donors">রক্ত খুঁজুন</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                  <Link href="/requests">রক্তের জন্য অনুরোধ</Link>
+                  <Link href="/register">ডোনার হোন</Link>
                 </Button>
               </div>
             </div>
