@@ -39,16 +39,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    const fetchUser = useCallback(async (uid: string, storage: Storage) => {
-        const userRef = doc(db, 'donors', uid);
+    const fetchUserAndSet = useCallback(async (uid: string, storage: Storage) => {
         try {
+            const userRef = doc(db, 'donors', uid);
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
-                const userData = { uid: docSnap.id, ...docSnap.data() } as UserDocument
+                const userData = { uid: docSnap.id, ...docSnap.data() } as UserDocument;
                 setUser(userData);
+                // Re-store the latest user data
                 storage.setItem('user', JSON.stringify(userData));
             } else {
-                // User in storage but not in DB, treat as logged out
+                // User in storage but not in DB, clear it
                 setUser(null);
                 storage.removeItem('user');
             }
@@ -62,37 +63,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     useEffect(() => {
-        const checkUserStatus = async () => {
-            setLoading(true);
-            try {
-                let storedUser: string | null = localStorage.getItem('user');
-                let storage: Storage = localStorage;
+        setLoading(true);
+        let storedUser: string | null = null;
+        let storage: Storage | null = null;
 
+        try {
+            if (typeof window !== 'undefined') {
+                 storedUser = localStorage.getItem('user');
+                 storage = localStorage;
                 if (!storedUser) {
                     storedUser = sessionStorage.getItem('user');
                     storage = sessionStorage;
                 }
+            }
 
-                if (storedUser) {
-                    const parsedUser: UserDocument = JSON.parse(storedUser);
-                    if (parsedUser?.uid) {
-                        await fetchUser(parsedUser.uid, storage);
-                    } else {
-                       setLoading(false);
-                    }
-                } else {
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error("Failed to parse user from storage", error);
-                localStorage.removeItem('user');
-                sessionStorage.removeItem('user');
+            if (storedUser && storage) {
+                const parsedUser: UserDocument = JSON.parse(storedUser);
+                // Instead of fetching again, just trust the stored user object for initial load
+                // This prevents the flicker/logout on hot-reload
+                setUser(parsedUser);
+                setLoading(false);
+            } else {
                 setLoading(false);
             }
-        };
-
-        checkUserStatus();
-    }, [fetchUser]);
+        } catch (error) {
+            console.error("Failed to parse user from storage", error);
+            if(typeof window !== 'undefined'){
+                localStorage.removeItem('user');
+                sessionStorage.removeItem('user');
+            }
+            setLoading(false);
+        }
+    }, []);
 
 
     const login = async (email: string, pass: string, remember: boolean = false): Promise<UserDocument | null> => {
@@ -172,9 +174,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if(user?.uid) {
             setLoading(true);
             const storage = localStorage.getItem('user') ? localStorage : sessionStorage;
-            fetchUser(user.uid, storage);
+            fetchUserAndSet(user.uid, storage);
         }
-    }, [user, fetchUser]);
+    }, [user, fetchUserAndSet]);
 
     const value = useMemo(() => ({
         user,
