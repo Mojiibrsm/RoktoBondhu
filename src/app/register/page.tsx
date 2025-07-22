@@ -50,6 +50,7 @@ const formSchema = z.object({
   gender: z.string({ required_error: "লিঙ্গ নির্বাচন করুন।" }),
   bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
   lastDonationDate: z.date().optional(),
+  totalDonations: z.coerce.number().min(0, {message: "অনুগ্রহ করে একটি সঠিক সংখ্যা লিখুন।"}).optional(),
   division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
   district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
   upazila: z.string({ required_error: "উপজেলা নির্বাচন করুন।" }),
@@ -68,6 +69,7 @@ export default function RegisterPage() {
             phoneNumber: "",
             password: "",
             availableToDonate: true,
+            totalDonations: 0
         },
     });
 
@@ -169,7 +171,7 @@ export default function RegisterPage() {
 
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold text-foreground/80 border-b pb-2">রক্তদান সংক্রান্ত তথ্য</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <FormField control={form.control} name="bloodType" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>রক্তের গ্রুপ</FormLabel>
@@ -208,6 +210,13 @@ export default function RegisterPage() {
                                     <FormMessage />
                                     </FormItem>
                                 )}/>
+                                <FormField control={form.control} name="totalDonations" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>মোট রক্তদান (ঐচ্ছিক)</FormLabel>
+                                        <FormControl><Input type="number" placeholder="যেমন, ৫" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
                             </div>
                         </div>
 
@@ -227,7 +236,7 @@ export default function RegisterPage() {
                                 <FormField control={form.control} name="district" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>জেলা</FormLabel>
-                                    <Select onValueChange={(value) => { field.onChange(value); form.setValue('upazila', ''); }} value={field.value} disabled={!currentDivision}>
+                                    <Select onValueChange={(value) => { field.onChange(value); form.setValue('upazila', ''); }} value={field.value || ''} disabled={!currentDivision}>
                                         <FormControl><SelectTrigger><SelectValue placeholder="জেলা নির্বাচন করুন" /></SelectTrigger></FormControl>
                                         <SelectContent>{currentDivision && districts[currentDivision] && districts[currentDivision].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
                                     </Select>
@@ -237,7 +246,7 @@ export default function RegisterPage() {
                                 <FormField control={form.control} name="upazila" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>উপজেলা / এলাকা</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value} disabled={!currentDistrict}>
+                                    <Select onValueChange={field.onChange} value={field.value || ''} disabled={!currentDistrict}>
                                         <FormControl><SelectTrigger><SelectValue placeholder="উপজেলা নির্বাচন করুন" /></SelectTrigger></FormControl>
                                         <SelectContent>{currentDistrict && upazilas[currentDistrict] && upazilas[currentDistrict].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
                                     </Select>
@@ -279,3 +288,5 @@ export default function RegisterPage() {
     </div>
     );
 }
+
+    
