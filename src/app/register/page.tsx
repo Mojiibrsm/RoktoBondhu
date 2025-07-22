@@ -15,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -43,16 +42,17 @@ import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   fullName: z.string().min(1, { message: "পুরো নাম आवश्यक।" }),
-  bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
-  phoneNumber: z.string().min(1, { message: "ফোন নম্বর आवश्यक।" }),
   email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
+  phoneNumber: z.string().min(1, { message: "ফোন নম্বর आवश्यक।" }),
   password: z.string().min(6, { message: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" }),
+  dateOfBirth: z.date({ required_error: "জন্ম তারিখ আবশ্যক।" }),
+  gender: z.string({ required_error: "লিঙ্গ নির্বাচন করুন।" }),
+  bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
+  lastDonationDate: z.date().optional(),
   division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
   district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
   upazila: z.string().min(1, { message: "উপজেলা/এলাকা লিখুন।" }),
-  lastDonationDate: z.date().optional(),
   availableToDonate: z.boolean().default(true),
-  profilePicture: z.any().optional(),
 });
 
 export default function RegisterPage() {
@@ -63,8 +63,8 @@ export default function RegisterPage() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             fullName: "",
-            phoneNumber: "",
             email: "",
+            phoneNumber: "",
             password: "",
             upazila: "",
             availableToDonate: true,
@@ -111,6 +111,116 @@ export default function RegisterPage() {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>ইমেল</FormLabel>
+                                    <FormControl>
+                                        <Input type="email" placeholder="m@example.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="phoneNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>ফোন নম্বর</FormLabel>
+                                    <FormControl>
+                                        <Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>পাসওয়ার্ড</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                         <div className="grid md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="dateOfBirth"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel>জন্ম তারিখ</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>একটি তারিখ বাছুন</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                                date > new Date() || date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                        />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                             />
+                            <FormField
+                                control={form.control}
+                                name="gender"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>লিঙ্গ</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="লিঙ্গ নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="male">পুরুষ</SelectItem>
+                                            <SelectItem value="female">মহিলা</SelectItem>
+                                            <SelectItem value="other">অন্যান্য</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
                              <FormField
                                 control={form.control}
                                 name="bloodType"
@@ -138,48 +248,49 @@ export default function RegisterPage() {
                                     </FormItem>
                                 )}
                             />
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField
+                             <FormField
                                 control={form.control}
-                                name="phoneNumber"
+                                name="lastDonationDate"
                                 render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>ফোন নম্বর</FormLabel>
-                                    <FormControl>
-                                        <Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} />
-                                    </FormControl>
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel>শেষ রক্তদানের তারিখ (ঐচ্ছিক)</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>একটি তারিখ বাছুন</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                                date > new Date() || date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                        />
+                                        </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                     </FormItem>
                                 )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>ইমেল</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" placeholder="m@example.com" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                             />
                         </div>
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>পাসওয়ার্ড</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        
                         <div className="grid md:grid-cols-3 gap-6">
                              <FormField
                                 control={form.control}
@@ -238,60 +349,7 @@ export default function RegisterPage() {
                                 )}
                             />
                         </div>
-                         <FormField
-                            control={form.control}
-                            name="lastDonationDate"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel>শেষ রক্তদানের তারিখ (ঐচ্ছিক)</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-[240px] pl-3 text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                        >
-                                        {field.value ? (
-                                            format(field.value, "PPP")
-                                        ) : (
-                                            <span>একটি তারিখ বাছুন</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                         />
-                        <FormField
-                            control={form.control}
-                            name="profilePicture"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>প্রোফাইল ছবি (ঐচ্ছিক)</FormLabel>
-                                <FormControl>
-                                    <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                         
                          <FormField
                             control={form.control}
                             name="availableToDonate"
@@ -305,7 +363,7 @@ export default function RegisterPage() {
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
                                     <FormLabel>
-                                        রক্তদানের জন্য উপলব্ধ?
+                                    এখন দান করতে ইচ্ছুক?
                                     </FormLabel>
                                     <FormDescription>
                                         জরুরী প্রয়োজনে আপনার সাথে যোগাযোগ করা হতে পারে।
@@ -335,5 +393,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-
-    
