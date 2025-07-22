@@ -50,7 +50,6 @@ const formSchema = z.object({
   gender: z.string({ required_error: "লিঙ্গ নির্বাচন করুন।" }),
   bloodType: z.string({ required_error: "রক্তের গ্রুপ নির্বাচন করুন।" }),
   lastDonationDate: z.date().optional(),
-  totalDonations: z.coerce.number().optional(),
   division: z.string({ required_error: "বিভাগ নির্বাচন করুন।" }),
   district: z.string({ required_error: "জেলা নির্বাচন করুন।" }),
   upazila: z.string({ required_error: "উপজেলা নির্বাচন করুন।" }),
@@ -72,27 +71,26 @@ export default function RegisterPage() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        setLoading(true);
-        console.log(values);
-        // এখানে ফায়ারবেস বা অন্য কোনো সার্ভারে ডেটা পাঠানোর কোড লেখা হবে
-        setTimeout(() => {
-            setLoading(false);
-            toast({
-                title: "সফল!",
-                description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
-            });
-            form.reset();
-        }, 2000);
-    }
-
     const currentDivision = form.watch("division");
     const currentDistrict = form.watch("district");
 
-  return (
-    <div className="flex items-center justify-center py-12">
-        <Card className="mx-auto max-w-2xl w-full shadow-xl">
-            <CardHeader>
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        setLoading(true);
+        console.log(values);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setLoading(false);
+        toast({
+            title: "সফল!",
+            description: "আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।",
+        });
+        form.reset();
+    }
+
+    return (
+    <div className="flex items-center justify-center py-12 px-4">
+        <Card className="mx-auto max-w-3xl w-full shadow-xl">
+            <CardHeader className="text-center">
                 <CardTitle className="text-3xl font-headline text-primary">একজন দাতা হন</CardTitle>
                 <CardDescription>
                 একটি অ্যাকাউন্ট তৈরি করতে আপনার তথ্য লিখুন
@@ -100,143 +98,83 @@ export default function RegisterPage() {
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="fullName"
-                                render={({ field }) => (
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                        
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-foreground/80 border-b pb-2">ব্যক্তিগত তথ্য</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField control={form.control} name="fullName" render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>পুরো নাম</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="আপনার পুরো নাম" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
+                                        <FormLabel>পুরো নাম</FormLabel>
+                                        <FormControl><Input placeholder="আপনার পুরো নাম" {...field} /></FormControl>
+                                        <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="email" render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>ইমেল (ঐচ্ছিক)</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" placeholder="m@example.com" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
+                                        <FormLabel>ইমেল (ঐচ্ছিক)</FormLabel>
+                                        <FormControl><Input type="email" placeholder="m@example.com" {...field} /></FormControl>
+                                        <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="phoneNumber"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="phoneNumber" render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>ফোন নম্বর</FormLabel>
-                                    <FormControl>
-                                        <Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
+                                        <FormLabel>ফোন নম্বর</FormLabel>
+                                        <FormControl><Input type="tel" placeholder="+৮৮০১২৩৪৫৬৭৮৯" {...field} /></FormControl>
+                                        <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="password" render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>পাসওয়ার্ড</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
+                                        <FormLabel>পাসওয়ার্ড</FormLabel>
+                                        <FormControl><Input type="password" {...field} /></FormControl>
+                                        <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                        </div>
-
-                         <div className="grid md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="dateOfBirth"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel>জন্ম তারিখ</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>একটি তারিখ বাছুন</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date > new Date() || date < new Date("1900-01-01")
-                                            }
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                             />
-                            <FormField
-                                control={form.control}
-                                name="gender"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
+                                     <FormItem className="flex flex-col">
+                                     <FormLabel>জন্ম তারিখ</FormLabel>
+                                     <Popover>
+                                         <PopoverTrigger asChild>
+                                         <FormControl>
+                                             <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                             {field.value ? format(field.value, "PPP") : (<span>একটি তারিখ বাছুন</span>)}
+                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                             </Button>
+                                         </FormControl>
+                                         </PopoverTrigger>
+                                         <PopoverContent className="w-auto p-0" align="start">
+                                         <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                         </PopoverContent>
+                                     </Popover>
+                                     <FormMessage />
+                                     </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="gender" render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>লিঙ্গ</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="লিঙ্গ নির্বাচন করুন" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="male">পুরুষ</SelectItem>
-                                            <SelectItem value="female">মহিলা</SelectItem>
-                                            <SelectItem value="other">অন্যান্য</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
+                                        <FormLabel>লিঙ্গ</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="লিঙ্গ নির্বাচন করুন" /></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="male">পুরুষ</SelectItem>
+                                                <SelectItem value="female">মহিলা</SelectItem>
+                                                <SelectItem value="other">অন্যান্য</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
                                     </FormItem>
-                                )}
-                            />
+                                )}/>
+                            </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                             <FormField
-                                control={form.control}
-                                name="bloodType"
-                                render={({ field }) => (
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-foreground/80 border-b pb-2">রক্তদান সংক্রান্ত তথ্য</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField control={form.control} name="bloodType" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>রক্তের গ্রুপ</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="রক্তের গ্রুপ নির্বাচন করুন" />
-                                        </Trigger>
-                                        </FormControl>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="রক্তের গ্রুপ নির্বাচন করুন" /></SelectTrigger></FormControl>
                                         <SelectContent>
                                             <SelectItem value="A+">A+</SelectItem>
                                             <SelectItem value="A-">A-</SelectItem>
@@ -250,178 +188,94 @@ export default function RegisterPage() {
                                     </Select>
                                     <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="lastDonationDate"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="lastDonationDate" render={({ field }) => (
                                     <FormItem className="flex flex-col">
                                     <FormLabel>শেষ রক্তদানের তারিখ (ঐচ্ছিক)</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                         <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>একটি তারিখ বাছুন</span>
-                                            )}
+                                            <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                            {field.value ? format(field.value, "PPP") : (<span>একটি তারিখ বাছুন</span>)}
                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date > new Date() || date < new Date("1900-01-01")
-                                            }
-                                            initialFocus
-                                        />
+                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                     <FormMessage />
                                     </FormItem>
-                                )}
-                             />
+                                )}/>
+                            </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="totalDonations"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>মোট রক্তদান (ঐচ্ছিক)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" placeholder="যেমন, ৫" {...field} onChange={event => field.onChange(+event.target.value)} />
-                                    </FormControl>
-                                    <FormDescription>আপনি মোট কতবার রক্তদান করেছেন?</FormDescription>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        
-                        <div className="grid md:grid-cols-3 gap-6">
-                             <FormField
-                                control={form.control}
-                                name="division"
-                                render={({ field }) => (
+                        <div className="space-y-4">
+                             <h3 className="text-lg font-semibold text-foreground/80 border-b pb-2">ঠিকানা</h3>
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormField control={form.control} name="division" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>বিভাগ</FormLabel>
-                                    <Select onValueChange={(value) => {
-                                        field.onChange(value);
-                                        form.setValue('district', '');
-                                        form.setValue('upazila', '');
-                                    }} defaultValue={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="বিভাগ নির্বাচন করুন" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {divisions.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
-                                        </SelectContent>
+                                    <Select onValueChange={(value) => { field.onChange(value); form.setValue('district', ''); form.setValue('upazila', ''); }} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="বিভাগ নির্বাচন করুন" /></SelectTrigger></FormControl>
+                                        <SelectContent>{divisions.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}</SelectContent>
                                     </Select>
                                     <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="district"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="district" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>জেলা</FormLabel>
-                                    <Select onValueChange={(value) => {
-                                        field.onChange(value);
-                                        form.setValue('upazila', '');
-                                    }} value={field.value} disabled={!currentDivision}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="জেলা নির্বাচন করুন" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {currentDivision && districts[currentDivision] && districts[currentDivision].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                                        </SelectContent>
+                                    <Select onValueChange={(value) => { field.onChange(value); form.setValue('upazila', ''); }} value={field.value} disabled={!currentDivision}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="জেলা নির্বাচন করুন" /></SelectTrigger></FormControl>
+                                        <SelectContent>{currentDivision && districts[currentDivision] && districts[currentDivision].map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
                                     </Select>
                                     <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="upazila"
-                                render={({ field }) => (
+                                )}/>
+                                <FormField control={form.control} name="upazila" render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>উপজেলা / এলাকা</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value} disabled={!currentDistrict}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="উপজেলা নির্বাচন করুন" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                             {currentDistrict && upazilas[currentDistrict] && upazilas[currentDistrict].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                                        </SelectContent>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="উপজেলা নির্বাচন করুন" /></SelectTrigger></FormControl>
+                                        <SelectContent>{currentDistrict && upazilas[currentDistrict] && upazilas[currentDistrict].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
                                     </Select>
                                     <FormMessage />
                                     </FormItem>
-                                )}
-                            />
+                                )}/>
+                            </div>
                         </div>
-                         
-                         <FormField
-                            control={form.control}
-                            name="availableToDonate"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                                <FormControl>
-                                    <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                    এখন দান করতে ইচ্ছুক?
-                                    </FormLabel>
-                                    <FormDescription>
-                                        জরুরী প্রয়োজনে আপনার সাথে যোগাযোগ করা হতে পারে।
-                                    </FormDescription>
-                                </div>
-                                </FormItem>
-                            )}
-                        />
 
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
-                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                             {loading ? 'প্রসেস হচ্ছে...' : 'অ্যাকাউন্ট তৈরি করুন'}
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                            গুগল দিয়ে সাইন আপ করুন
-                        </Button>
+                        <FormField control={form.control} name="availableToDonate" render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                            <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>এখন দান করতে ইচ্ছুক?</FormLabel>
+                                <FormDescription>জরুরী প্রয়োজনে আপনার সাথে যোগাযোগ করা হতে পারে।</FormDescription>
+                            </div>
+                            </FormItem>
+                        )}/>
+
+                        <div className="space-y-4 pt-4">
+                             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg" disabled={loading}>
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {loading ? 'প্রসেস হচ্ছে...' : 'অ্যাকাউন্ট তৈরি করুন'}
+                            </Button>
+                            <Button variant="outline" className="w-full text-lg">
+                                গুগল দিয়ে সাইন আপ করুন
+                            </Button>
+                        </div>
                     </form>
                 </Form>
-                <div className="mt-4 text-center text-sm">
-                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
-                <Link href="/login" className="underline text-accent">
-                    সাইন ইন করুন
-                </Link>
+                <div className="mt-6 text-center text-sm">
+                    ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
+                    <Link href="/login" className="underline text-accent font-semibold">
+                        এখানে সাইন ইন করুন
+                    </Link>
                 </div>
             </CardContent>
         </Card>
     </div>
-  );
+    );
 }
