@@ -7,7 +7,7 @@ import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
 import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas/notifications';
 import { db } from './firebase-admin'; // Using admin SDK for backend operations
 import { demoData } from './placeholder-data';
-import { collection, writeBatch, doc, updateDoc } from 'firebase/firestore';
+import { collection, writeBatch, doc, updateDoc } from 'firebase-admin/firestore'; // Correct import for admin SDK
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
   // You could add authentication/authorization checks here
@@ -38,8 +38,14 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 }
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
+    if (!db || typeof db.batch !== 'function') {
+        const message = "Firestore admin is not initialized. Check server environment variables.";
+        console.error(`Error seeding collection ${collectionName}:`, message);
+        return { success: false, message };
+    }
+    
     try {
-        const batch = writeBatch(db);
+        const batch = db.batch();
         const dataToSeed = demoData[collectionName];
 
         if (!dataToSeed) {
@@ -49,8 +55,8 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
         console.log(`Starting to seed collection: ${collectionName}`);
 
         for (const item of dataToSeed) {
-            // Use the provided id for the document ID
-            const docRef = doc(collection(db, collectionName), item.id);
+            // Use the provided id for the document ID, or let Firestore generate one if not present
+            const docRef = item.id ? db.collection(collectionName).doc(item.id) : db.collection(collectionName).doc();
 
             // Handle date conversion if needed
             const itemWithDates: { [key: string]: any } = { ...item };
@@ -65,7 +71,7 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
                 }
             }
             
-            // The entire item (including plaintext password for demo) will be seeded.
+            // The entire item will be seeded.
             // In a real application, NEVER store plaintext passwords.
             batch.set(docRef, itemWithDates);
         }
@@ -82,10 +88,15 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 }
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
+     if (!db || typeof db.doc !== 'function') {
+        const message = "Firestore admin is not initialized. Check server environment variables.";
+        console.error(`Error updating role for UID ${uid}:`, message);
+        return { success: false, message };
+    }
     try {
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
-        const userRef = doc(db, 'donors', uid);
-        await updateDoc(userRef, { role: role });
+        const userRef = db.doc(`donors/${uid}`);
+        await userRef.update({ role: role });
         console.log(`Successfully updated role for UID: ${uid}`);
         return { success: true, message: 'User role updated successfully.' };
     } catch (error) {
