@@ -3,11 +3,11 @@ import {z} from 'genkit';
 
 export const SendNotificationInputSchema = z.object({
     channel: z.enum(['email', 'sms']).describe('The channel to send the notification through.'),
-    targetType: z.enum(['all', 'bloodGroup', 'location']).describe('The type of target audience for the notification.'),
-    targetValue: z.string().optional().describe('The specific value for the target (e.g., a blood group or a location).'),
+    targetType: z.enum(['all', 'bloodGroup', 'location', 'user']).describe('The type of target audience for the notification.'),
+    targetValue: z.string().optional().describe('The specific value for the target (e.g., a blood group, a location, or a user ID).'),
     message: z.string().describe('The content of the message to be sent.'),
   }).refine(data => {
-    if (data.targetType === 'bloodGroup' || data.targetType === 'location') {
+    if (data.targetType === 'bloodGroup' || data.targetType === 'location' || data.targetType === 'user') {
         return !!data.targetValue;
     }
     return true;

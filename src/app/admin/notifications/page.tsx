@@ -1,7 +1,7 @@
 // src/app/admin/notifications/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Loader2, Send } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { sendNotificationOnServer } from '@/lib/actions';
+import { sendNotificationOnServer, getDonors } from '@/lib/actions';
 import {
   Select,
   SelectContent,
@@ -20,11 +20,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SendNotificationInputSchema, SendNotificationInput } from '@/ai/schemas/notifications';
+import { upazilas } from '@/lib/placeholder-data';
+
+interface Donor {
+    uid: string;
+    name: string;
+    email: string;
+}
+
+const allUpazilas = Object.values(upazilas).flat().filter((v, i, a) => a.indexOf(v) === i).sort();
 
 
 export default function AdminNotificationsPage() {
   const [loading, setLoading] = useState(false);
+  const [donors, setDonors] = useState<Donor[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchDonors() {
+        try {
+            const donorData = await getDonors();
+            setDonors(donorData);
+        } catch (error) {
+            console.error("Failed to fetch donors", error);
+            toast({
+                variant: "destructive",
+                title: "ত্রুটি",
+                description: "ব্যবহারকারীদের তালিকা আনতে ব্যর্থ হয়েছে।"
+            })
+        }
+    }
+    fetchDonors();
+  }, [toast]);
 
   const form = useForm<SendNotificationInput>({
     resolver: zodResolver(SendNotificationInputSchema),
@@ -108,6 +135,7 @@ export default function AdminNotificationsPage() {
                                             <SelectItem value="all">সকল ব্যবহারকারী</SelectItem>
                                             <SelectItem value="bloodGroup">রক্তের গ্রুপ অনুযায়ী</SelectItem>
                                             <SelectItem value="location">এলাকা অনুযায়ী</SelectItem>
+                                            <SelectItem value="user">নির্দিষ্ট ব্যবহারকারী অনুযায়ী</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -152,12 +180,43 @@ export default function AdminNotificationsPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>এলাকা</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                        placeholder="যেমন, ঢাকা"
-                                        {...field}
-                                        />
-                                    </FormControl>
+                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="এলাকা নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {allUpazilas.map(upazila => (
+                                                <SelectItem key={upazila} value={upazila}>{upazila}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            )}
+                            {targetType === 'user' && (
+                                <FormField
+                                control={form.control}
+                                name="targetValue"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>ব্যবহারকারী</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="ব্যবহারকারী নির্বাচন করুন" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {donors.length === 0 && <p className="p-2 text-sm text-muted-foreground">ব্যবহারকারী লোড হচ্ছে...</p>}
+                                            {donors.map(donor => (
+                                                <SelectItem key={donor.uid} value={donor.uid}>{donor.name} ({donor.email})</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                     </FormItem>
                                 )}

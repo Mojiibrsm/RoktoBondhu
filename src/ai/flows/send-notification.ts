@@ -27,6 +27,8 @@ const sendNotificationFlow = ai.defineFlow(
         targetDescription = `রক্তের গ্রুপ "${input.targetValue}" এর সকল ব্যবহারকারী`;
     } else if (input.targetType === 'location') {
         targetDescription = `এলাকা "${input.targetValue}" এর সকল ব্যবহারকারী`;
+    } else if (input.targetType === 'user') {
+        targetDescription = `ব্যবহারকারী "${input.targetValue}"`; // In a real app, you'd fetch user name by ID
     }
 
 
