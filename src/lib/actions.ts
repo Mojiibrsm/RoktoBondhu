@@ -1,7 +1,7 @@
 // src/lib/actions.ts
 'use server';
 import * as admin from 'firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { answerFAQ } from '@/ai/flows/answer-faq';
 import { sendNotification } from '@/ai/flows/send-notification';
 import type { AnswerFAQInput, AnswerFAQOutput } from '@/ai/schemas/faq';
@@ -9,22 +9,29 @@ import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas
 import { demoData } from './placeholder-data';
 import serviceAccount from '../serviceAccountKey.json';
 
-// Helper function to initialize admin and get DB instance
-function getAdminDb() {
-  const serviceAccountParams = {
-    projectId: serviceAccount.project_id,
-    clientEmail: serviceAccount.client_email,
-    privateKey: serviceAccount.private_key,
-  };
+let db: Firestore;
 
-  if (admin.apps.length === 0) {
+function initializeAdminApp() {
+    if (admin.apps.some(app => app?.name === 'roktobondhu-admin')) {
+        db = getFirestore(admin.app('roktobondhu-admin'));
+        return;
+    }
+    
+    const serviceAccountParams = {
+        projectId: serviceAccount.project_id,
+        clientEmail: serviceAccount.client_email,
+        privateKey: serviceAccount.private_key,
+    };
+
     const app = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccountParams),
-    });
-    return getFirestore(app);
-  }
-  return getFirestore();
+        credential: admin.credential.cert(serviceAccountParams),
+    }, 'roktobondhu-admin');
+    
+    db = getFirestore(app);
 }
+
+// Initialize the app when the module is loaded
+initializeAdminApp();
 
 
 export async function answerFAQOnServer(input: AnswerFAQInput): Promise<AnswerFAQOutput> {
@@ -57,7 +64,6 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
     try {
-        const db = getAdminDb();
         const batch = db.batch();
         const dataToSeed = demoData[collectionName];
 
@@ -102,7 +108,6 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
     try {
-        const db = getAdminDb();
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
         const userRef = db.doc(`donors/${uid}`);
         await userRef.update({ role: role });
