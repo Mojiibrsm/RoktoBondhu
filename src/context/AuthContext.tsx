@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (docSnap.exists()) {
                     setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
                 } else {
-                    setUserDoc(null);
+                    setUserDoc(null); // Explicitly set to null if doc doesn't exist
                 }
             } else {
                 setUser(null);
@@ -68,10 +68,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (email: string, pass: string) => {
+        setLoading(true);
         return signInWithEmailAndPassword(auth, email, pass);
     };
 
     const signup = async (email: string, pass: string, data: object) => {
+        setLoading(true);
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
         const userRef = doc(db, "donors", user.uid);
@@ -80,10 +82,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             uid: user.uid,
             email: user.email,
         });
+        // Manually set userDoc after signup to avoid waiting for onAuthStateChanged
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+             setUserDoc({ uid: user.uid, ...docSnap.data() } as UserDocument);
+        }
+        setLoading(false);
         return userCredential;
     };
 
     const logout = () => {
+        setLoading(true);
         return signOut(auth);
     };
 
@@ -95,15 +104,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
     };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <Loader2 className="h-16 w-16 animate-spin text-primary" />
-            </div>
-        );
-    }
-
 
     return (
         <AuthContext.Provider value={value}>
