@@ -9,12 +9,11 @@ import type { SendNotificationInput, SendNotificationOutput } from '@/ai/schemas
 import { demoData } from './placeholder-data';
 import serviceAccount from '../serviceAccountKey.json';
 
-const createAdminApp = () => {
+let db: Firestore;
+
+try {
     const appName = 'roktobondhu-admin';
     const existingApp = admin.apps.find(app => app?.name === appName);
-    if (existingApp) {
-        return getFirestore(existingApp);
-    }
 
     const serviceAccountParams = {
         projectId: serviceAccount.project_id,
@@ -22,11 +21,16 @@ const createAdminApp = () => {
         privateKey: serviceAccount.private_key.replace(/\\n/g, '\n'),
     };
 
-    const newApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountParams),
-    }, appName);
-    
-    return getFirestore(newApp);
+    if (existingApp) {
+        db = getFirestore(existingApp);
+    } else {
+        const newApp = admin.initializeApp({
+            credential: admin.credential.cert(serviceAccountParams),
+        }, appName);
+        db = getFirestore(newApp);
+    }
+} catch (error: any) {
+    console.error("Firebase Admin Initialization Error:", error.message);
 }
 
 
@@ -59,7 +63,12 @@ export async function sendNotificationOnServer(input: SendNotificationInput): Pr
 }
 
 export async function seedDatabase(collectionName: keyof typeof demoData) {
-    const db = createAdminApp();
+    if (!db) {
+        const message = 'Firestore admin is not initialized. Check server environment variables or service account file.';
+        console.error(message);
+        return { success: false, message };
+    }
+
     try {
         const batch = db.batch();
         const dataToSeed = demoData[collectionName];
@@ -104,7 +113,11 @@ export async function seedDatabase(collectionName: keyof typeof demoData) {
 }
 
 export async function updateUserRole(uid: string, role: 'user' | 'admin') {
-    const db = createAdminApp();
+     if (!db) {
+        const message = 'Firestore admin is not initialized. Check server environment variables or service account file.';
+        console.error(message);
+        return { success: false, message };
+    }
     try {
         console.log(`Attempting to update role for UID: ${uid} to ${role}`);
         const userRef = db.doc(`donors/${uid}`);
