@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart } from 'lucide-react';
+import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw } from 'lucide-react';
 import { topDonors, urgentRequests, blogPosts } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -11,16 +11,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh]">
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-red-50/50">
+      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-primary/10">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-1 lg:gap-12 text-center">
             <div className="flex flex-col justify-center items-center space-y-4">
               <div className="space-y-4">
                 <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-primary">
-                  রক্ত দিন, জীবন বাঁচান – এখন আরও সহজে!
+                  রক্ত দিন, জীবন বাঁচান
                 </h1>
                 <p className="max-w-[600px] text-foreground/80 md:text-xl">
-                  দ্রুত রক্ত খুঁজুন অথবা স্বেচ্ছাসেবী হোন
+                  একটি ক্লিকেই খুঁজুন রক্তদাতা
                 </p>
               </div>
               <div className="flex flex-col gap-4 min-[400px]:flex-row">
@@ -33,6 +33,41 @@ export default function Home() {
               </div>
             </div>
             
+          </div>
+        </div>
+      </section>
+
+      <section id="why-donate" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">কেন রক্তদান করবেন?</h2>
+              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                আপনার এক ব্যাগ রক্ত পারে একজন মানুষের জীবন বাঁচাতে। রক্তদানের মাধ্যমে আপনিও পেতে পারেন অনেক সুবিধা।
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <HeartHandshake className="h-16 w-16 text-primary mb-4" />
+              <h3 className="text-xl font-bold font-headline mb-2">জীবন বাঁচান</h3>
+              <p className="text-sm text-foreground/80">আপনার দান করা রক্ত মুমূর্ষু রোগীর জীবন রক্ষা করতে পারে।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <Stethoscope className="h-16 w-16 text-primary mb-4" />
+              <h3 className="text-xl font-bold font-headline mb-2">স্বাস্থ্য পরীক্ষা</h3>
+              <p className="text-sm text-foreground/80">রক্তদানের আগে আপনার স্বাস্থ্য বিনামূল্যে পরীক্ষা করার সুযোগ হয়।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <Smile className="h-16 w-16 text-primary mb-4" />
+              <h3 className="text-xl font-bold font-headline mb-2">মানসিক শান্তি</h3>
+              <p className="text-sm text-foreground/80">অন্যের জীবন বাঁচাতে সাহায্য করার মাধ্যমে আপনি মানসিক তৃপ্তি লাভ করেন।</p>
+            </Card>
+            <Card className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center">
+              <RefreshCw className="h-16 w-16 text-primary mb-4" />
+              <h3 className="text-xl font-bold font-headline mb-2">নতুন রক্তকণিকা তৈরি</h3>
+              <p className="text-sm text-foreground/80">রক্তদানের পর শরীরে নতুন রক্তকণিকা তৈরি হয় যা শরীরকে সতেজ রাখে।</p>
+            </Card>
           </div>
         </div>
       </section>
@@ -164,5 +199,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
