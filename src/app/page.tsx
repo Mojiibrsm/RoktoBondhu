@@ -3,8 +3,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake } from 'lucide-react';
-import { topDonors, urgentRequests, blogPosts } from '@/lib/placeholder-data';
+import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote } from 'lucide-react';
+import { topDonors, urgentRequests, blogPosts, testimonials } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
@@ -203,6 +203,35 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <div className="container px-4 md:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">সাফল্যের গল্প</h2>
+            <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mx-auto mt-4">
+              আমাদের সম্প্রদায় থেকে কিছু অনুপ্রেরণামূলক গল্প শুনুন।
+            </p>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:gap-12">
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.id} className="text-center p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center border-b-4 border-primary">
+                <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
+                  <AvatarImage src={testimonial.image} alt={testimonial.name} data-ai-hint={testimonial.aiHint} />
+                  <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <CardContent className="flex-grow">
+                  <Quote className="w-8 h-8 text-primary/30 mx-auto mb-4" />
+                  <p className="text-foreground/80 italic mb-4">{testimonial.quote}</p>
+                </CardContent>
+                <CardFooter className="flex flex-col items-center p-0">
+                  <h3 className="text-xl font-bold font-headline">{testimonial.name}</h3>
+                  <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+      
       <section id="blog" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
         <div className="container px-4 md:px-6">
           <div className="space-y-4 mb-8">
