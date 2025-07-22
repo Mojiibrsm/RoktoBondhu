@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -73,6 +74,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">জরুরী রক্তের অনুরোধ</h2>
+              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                এইগুলি গুরুতর অনুরোধ যা আপনার অবিলম্বে মনোযোগ প্রয়োজন। আপনার দান একটি জীবন বাঁচাতে পারে।
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-8">
+            {urgentRequests.map((request) => (
+              <Card key={request.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-background">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between font-headline text-2xl">
+                    {request.patientName}
+                    <Badge variant="destructive" className="bg-primary">{request.bloodType}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> {request.location}</p>
+                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> পোস্ট করা হয়েছে {request.postedTime}</p>
+                  <p className="text-sm text-foreground/80 pt-2">{request.reason}</p>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild className="w-full bg-accent hover:bg-accent/90">
+                    <Link href={`/requests`}>যোগাযোগ ও দান করুন</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+      
       <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
@@ -112,41 +148,6 @@ export default function Home() {
               <h3 className="text-xl font-bold font-headline mb-2">রক্তদানের রেকর্ড</h3>
               <p className="text-sm text-foreground/80">আপনার রক্তদানের ইতিহাস ও পরবর্তী তারিখ সহজেই ট্র্যাক করুন।</p>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">জরুরী রক্তের অনুরোধ</h2>
-              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                এইগুলি গুরুতর অনুরোধ যা আপনার অবিলম্বে মনোযোগ প্রয়োজন। আপনার দান একটি জীবন বাঁচাতে পারে।
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-8">
-            {urgentRequests.map((request) => (
-              <Card key={request.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-background">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between font-headline text-2xl">
-                    {request.patientName}
-                    <Badge variant="destructive" className="bg-primary">{request.bloodType}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> {request.location}</p>
-                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> পোস্ট করা হয়েছে {request.postedTime}</p>
-                  <p className="text-sm text-foreground/80 pt-2">{request.reason}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild className="w-full bg-accent hover:bg-accent/90">
-                    <Link href={`/requests`}>যোগাযোগ ও দান করুন</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
