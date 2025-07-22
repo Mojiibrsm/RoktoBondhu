@@ -32,6 +32,7 @@ export const topDonors = [
     location: 'ঢাকা, বাংলাদেশ',
     bloodType: 'A+',
     donations: 15,
+    image: 'https://placehold.co/96x96.png',
   },
   {
     id: 2,
@@ -39,6 +40,7 @@ export const topDonors = [
     location: 'চট্টগ্রাম, বাংলাদেশ',
     bloodType: 'O+',
     donations: 12,
+    image: 'https://placehold.co/96x96.png',
   },
   {
     id: 3,
@@ -46,6 +48,7 @@ export const topDonors = [
     location: 'সিলেট, বাংলাদেশ',
     bloodType: 'B-',
     donations: 10,
+    image: 'https://placehold.co/96x96.png',
   },
   {
     id: 4,
@@ -53,6 +56,7 @@ export const topDonors = [
     location: 'খুলনা, বাংলাদেশ',
     bloodType: 'AB+',
     donations: 8,
+    image: 'https://placehold.co/96x96.png',
   },
 ];
 

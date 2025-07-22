@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw } from 'lucide-react';
+import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake } from 'lucide-react';
 import { topDonors, urgentRequests, blogPosts } from '@/lib/placeholder-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -37,6 +37,137 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">এটা যেভাবে কাজ করে</h2>
+                <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    মাত্র ৩টি সহজ ধাপে জীবন বাঁচাতে সাহায্য করুন।
+                </p>
+                </div>
+            </div>
+            <div className="mx-auto grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-12">
+                <Card className="text-center p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center border-t-4 border-primary">
+                    <div className="mb-4 bg-primary/10 rounded-full p-4">
+                        <User className="h-12 w-12 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold font-headline mb-2">পদক্ষেপ ১: রেজিস্টার</h3>
+                    <p className="text-foreground/80">একজন রক্তদাতা হিসাবে আপনার প্রোফাইল তৈরি করুন।</p>
+                </Card>
+                <Card className="text-center p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center border-t-4 border-primary">
+                    <div className="mb-4 bg-primary/10 rounded-full p-4">
+                        <Search className="h-12 w-12 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold font-headline mb-2">পদক্ষেপ ২: খুঁজুন বা দিন</h3>
+                    <p className="text-foreground/80">রক্ত খুঁজুন অথবা রক্তদানের জন্য উপলব্ধ হন।</p>
+                </Card>
+                <Card className="text-center p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center border-t-4 border-primary">
+                    <div className="mb-4 bg-primary/10 rounded-full p-4">
+                        <Handshake className="h-12 w-12 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold font-headline mb-2">পদক্ষেপ ৩: যোগাযোগ</h3>
+                    <p className="text-foreground/80">প্রয়োজনে যোগাযোগ করুন এবং জীবন বাঁচান।</p>
+                </Card>
+            </div>
+        </div>
+      </section>
+
+      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">জরুরী রক্তের অনুরোধ</h2>
+              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                এইগুলি গুরুতর অনুরোধ যা আপনার অবিলম্বে মনোযোগ প্রয়োজন। আপনার দান একটি জীবন বাঁচাতে পারে।
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-8">
+            {urgentRequests.map((request) => (
+              <Card key={request.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-background">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between font-headline text-2xl">
+                    {request.patientName}
+                    <Badge variant="destructive" className="bg-primary">{request.bloodType}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> {request.location}</p>
+                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> পোস্ট করা হয়েছে {request.postedTime}</p>
+                  <p className="text-sm text-foreground/80 pt-2">{request.reason}</p>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild className="w-full bg-accent hover:bg-accent/90">
+                    <Link href={`/requests`}>যোগাযোগ ও দান করুন</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="top-donors" className="w-full py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">আমাদের বীরেরা</h2>
+              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                আমাদের সবচেয়ে নিবেদিত কিছু দাতাদের সাথে দেখা করুন যারা সম্প্রদায়ে সত্যিকারের প্রভাব ফেলছেন।
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-8">
+            {topDonors.map((donor) => (
+               <Card key={donor.id} className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
+                <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
+                  <AvatarImage src={donor.image} alt={donor.name} data-ai-hint="profile picture" />
+                  <AvatarFallback>{donor.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <h3 className="text-xl font-bold font-headline">{donor.name}</h3>
+                <p className="text-sm text-foreground/80">{donor.location}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Droplet className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-primary">{donor.bloodType}</span>
+                </div>
+                <p className="text-sm text-foreground/80 mt-1">{donor.donations} বার দান করেছেন</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="statistics" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">আমাদের পরিসংখ্যান</h2>
+                <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    আমাদের সম্প্রদায়ের সম্মিলিত প্রভাব দেখুন।
+                </p>
+                </div>
+            </div>
+            <div className="mx-auto grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:gap-12 text-center">
+                <div className="flex flex-col items-center justify-center">
+                    <Users className="h-16 w-16 text-primary mb-4" />
+                    <p className="text-5xl font-bold font-headline">5,000+</p>
+                    <p className="text-xl text-foreground/80 mt-2">মোট ডোনার</p>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    <LifeBuoy className="h-16 w-16 text-primary mb-4" />
+                    <p className="text-5xl font-bold font-headline">10,000+</p>
+                    <p className="text-xl text-foreground/80 mt-2">মোট রিকোয়েস্ট</p>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    <HeartHandshake className="h-16 w-16 text-primary mb-4" />
+                    <p className="text-5xl font-bold font-headline">8,500+</p>
+                    <p className="text-xl text-foreground/80 mt-2">সফল ডোনেশন</p>
+                </div>
+            </div>
+        </div>
+       </section>
+      
       <section id="why-donate" className="w-full py-12 md:py-24 lg:py-32 bg-background">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -72,72 +203,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="urgent-requests" className="w-full py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">জরুরী রক্তের অনুরোধ</h2>
-              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                এইগুলি গুরুতর অনুরোধ যা আপনার অবিলম্বে মনোযোগ প্রয়োজন। আপনার দান একটি জীবন বাঁচাতে পারে।
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-8">
-            {urgentRequests.map((request) => (
-              <Card key={request.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between font-headline text-2xl">
-                    {request.patientName}
-                    <Badge variant="destructive" className="bg-primary">{request.bloodType}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> {request.location}</p>
-                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> পোস্ট করা হয়েছে {request.postedTime}</p>
-                  <p className="text-sm text-foreground/80 pt-2">{request.reason}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild className="w-full bg-accent hover:bg-accent/90">
-                    <Link href={`/requests`}>যোগাযোগ ও দান করুন</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="top-donors" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary">আমাদের বীরেরা</h2>
-              <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                আমাদের সবচেয়ে নিবেদিত কিছু দাতাদের সাথে দেখা করুন যারা সম্প্রদায়ে সত্যিকারের প্রভাব ফেলছেন।
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-8">
-            {topDonors.map((donor) => (
-               <Card key={donor.id} className="text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
-                <Avatar className="w-24 h-24 mb-4">
-                  <AvatarImage src={`https://placehold.co/96x96.png`} alt={donor.name} data-ai-hint="profile picture" />
-                  <AvatarFallback>{donor.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <h3 className="text-xl font-bold font-headline">{donor.name}</h3>
-                <p className="text-sm text-foreground/80">{donor.location}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Droplet className="w-4 h-4 text-primary" />
-                  <span className="font-bold text-primary">{donor.bloodType}</span>
-                </div>
-                <p className="text-sm text-foreground/80 mt-1">{donor.donations} বার দান করেছেন</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="blog" className="w-full py-12 md:py-24 lg:py-32">
+      <section id="blog" className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
         <div className="container px-4 md:px-6">
           <div className="space-y-4 mb-8">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline text-primary text-center">আমাদের ব্লগ থেকে</h2>
@@ -147,7 +213,7 @@ export default function Home() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {blogPosts.slice(0, 3).map((post) => (
-              <Card key={post.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card key={post.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-background">
                 <Link href={`/blog/${post.slug}`}>
                   <Image
                     src={post.image}
@@ -181,7 +247,7 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+      <section className="w-full py-12 md:py-24 lg:py-32">
         <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
           <div className="space-y-3">
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline text-primary">জীবন বাঁচানোর সম্প্রদায়ে যোগ দিন</h2>
