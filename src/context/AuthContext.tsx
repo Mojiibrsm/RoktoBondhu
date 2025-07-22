@@ -17,7 +17,7 @@ interface UserDocument {
 interface AuthContextType {
     user: UserDocument | null;
     loading: boolean;
-    login: (email: string, pass: string) => Promise<UserDocument | null>;
+    login: (email: string, pass: string, remember?: boolean) => Promise<UserDocument | null>;
     signup: (data: any) => Promise<UserDocument | null>;
     logout: () => void;
     reloadUser: () => void;
@@ -39,23 +39,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    const fetchUser = useCallback(async (uid: string) => {
+    const fetchUser = useCallback(async (uid: string, storage: Storage) => {
         const userRef = doc(db, 'donors', uid);
         try {
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
                 const userData = { uid: docSnap.id, ...docSnap.data() } as UserDocument
                 setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData));
+                storage.setItem('user', JSON.stringify(userData));
             } else {
-                // User in local storage but not in DB, treat as logged out
+                // User in storage but not in DB, treat as logged out
                 setUser(null);
-                localStorage.removeItem('user');
+                storage.removeItem('user');
             }
         } catch (error) {
             console.error("Error fetching user document:", error);
             setUser(null);
-            localStorage.removeItem('user');
+            storage.removeItem('user');
         } finally {
             setLoading(false);
         }
@@ -65,20 +65,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const checkUserStatus = async () => {
             setLoading(true);
             try {
-                const storedUser = localStorage.getItem('user');
+                let storedUser: string | null = localStorage.getItem('user');
+                let storage: Storage = localStorage;
+
+                if (!storedUser) {
+                    storedUser = sessionStorage.getItem('user');
+                    storage = sessionStorage;
+                }
+
                 if (storedUser) {
                     const parsedUser: UserDocument = JSON.parse(storedUser);
                     if (parsedUser?.uid) {
-                        await fetchUser(parsedUser.uid);
+                        await fetchUser(parsedUser.uid, storage);
                     } else {
-                        setLoading(false);
+                       setLoading(false);
                     }
                 } else {
                     setLoading(false);
                 }
             } catch (error) {
-                console.error("Failed to parse user from localStorage", error);
+                console.error("Failed to parse user from storage", error);
                 localStorage.removeItem('user');
+                sessionStorage.removeItem('user');
                 setLoading(false);
             }
         };
@@ -87,8 +95,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [fetchUser]);
 
 
-    const login = async (email: string, pass: string): Promise<UserDocument | null> => {
+    const login = async (email: string, pass: string, remember: boolean = false): Promise<UserDocument | null> => {
         setLoading(true);
+        const storage = remember ? localStorage : sessionStorage;
         try {
             // Temporary "master key" to allow admin login and re-seeding
             if (email === 'admin@roktobondhu.com' && pass === 'admin123') {
@@ -99,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     role: "admin",
                 } as UserDocument;
                 
-                localStorage.setItem('user', JSON.stringify(adminData));
+                storage.setItem('user', JSON.stringify(adminData));
                 setUser(adminData);
                 return adminData;
             }
@@ -120,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 throw new Error("Invalid credentials");
             }
 
-            localStorage.setItem('user', JSON.stringify(userData));
+            storage.setItem('user', JSON.stringify(userData));
             setUser(userData);
             return userData;
         } finally {
@@ -142,7 +151,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await setDoc(userRef, storedData);
 
             const newUser = { uid: userRef.id, ...storedData } as UserDocument;
-            localStorage.setItem('user', JSON.stringify(newUser));
+            // By default, keep new signups logged in via session storage
+            sessionStorage.setItem('user', JSON.stringify(newUser));
             setUser(newUser);
             return newUser;
         } finally {
@@ -153,6 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
         // Use window.location to force a hard reload, clearing all state.
         window.location.href = '/login';
     };
@@ -160,7 +171,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const reloadUser = useCallback(() => {
         if(user?.uid) {
             setLoading(true);
-            fetchUser(user.uid);
+            const storage = localStorage.getItem('user') ? localStorage : sessionStorage;
+            fetchUser(user.uid, storage);
         }
     }, [user, fetchUser]);
 

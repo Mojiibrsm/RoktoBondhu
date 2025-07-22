@@ -20,6 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -29,6 +30,7 @@ import { Loader2 } from "lucide-react";
 const formSchema = z.object({
     email: z.string().email({ message: "সঠিক ইমেল ঠিকানা লিখুন।" }),
     password: z.string().min(1, { message: "পাসওয়ার্ড আবশ্যক।" }),
+    remember: z.boolean().default(false),
 });
 
 export default function LoginPage() {
@@ -42,6 +44,7 @@ export default function LoginPage() {
         defaultValues: {
             email: "",
             password: "",
+            remember: false,
         },
     });
 
@@ -58,7 +61,7 @@ export default function LoginPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true);
         try {
-            const loggedInUser = await login(values.email, values.password);
+            const loggedInUser = await login(values.email, values.password, values.remember);
             
             if (loggedInUser) {
               toast({
@@ -117,12 +120,7 @@ export default function LoginPage() {
                         name="password"
                         render={({ field }) => (
                             <FormItem>
-                            <div className="flex items-center">
-                                <FormLabel>পাসওয়ার্ড</FormLabel>
-                                <Link href="#" className="ml-auto inline-block text-sm underline">
-                                    পাসওয়ার্ড ভুলে গেছেন?
-                                </Link>
-                            </div>
+                             <FormLabel>পাসওয়ার্ড</FormLabel>
                             <FormControl>
                                 <Input type="password" {...field} />
                             </FormControl>
@@ -130,6 +128,31 @@ export default function LoginPage() {
                             </FormItem>
                         )}
                     />
+                    <div className="flex items-center justify-between">
+                         <FormField
+                            control={form.control}
+                            name="remember"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                                <FormControl>
+                                    <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <FormLabel className="text-sm font-normal">
+                                        আমাকে মনে রাখুন
+                                    </FormLabel>
+                                </div>
+                                </FormItem>
+                            )}
+                        />
+                         <Link href="#" className="ml-auto inline-block text-sm underline">
+                            পাসওয়ার্ড ভুলে গেছেন?
+                        </Link>
+                    </div>
+
                     <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {loading ? 'লগইন হচ্ছে...' : 'লগইন'}
