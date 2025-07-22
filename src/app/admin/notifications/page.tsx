@@ -1,3 +1,4 @@
+
 // src/app/admin/notifications/page.tsx
 'use client';
 
@@ -85,7 +86,7 @@ export default function AdminNotificationsPage() {
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="চ্যানেল নির্বাচন করুন" />
-                            </SelectTrigger>
+                            </Trigger>
                             </FormControl>
                             <SelectContent>
                             <SelectItem value="email">ইমেল</SelectItem>
