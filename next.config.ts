@@ -18,13 +18,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
-    config.module.rules.push({
-      test: /\.rules$/,
-      type: 'asset/source',
-    });
-    return config;
-  },
 };
 
 export default nextConfig;

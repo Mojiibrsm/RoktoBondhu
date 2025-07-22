@@ -1,5 +1,6 @@
 // src/app/admin/rules/page.tsx
 'use client';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,18 +10,35 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Copy } from 'lucide-react';
-import firestoreRules from '../../../../firestore.rules';
+import { Copy, Loader2 } from 'lucide-react';
 
 export default function FirestoreRulesPage() {
   const { toast } = useToast();
+  const [rules, setRules] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/firestore.rules')
+      .then((res) => res.text())
+      .then((text) => {
+        setRules(text);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load firestore rules:', err);
+        setRules('নিয়মাবলী লোড করতে ব্যর্থ হয়েছে।');
+        setLoading(false);
+      });
+  }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(firestoreRules);
-    toast({
-      title: 'সফল!',
-      description: 'নিয়মাবলী ক্লিপবোর্ডে কপি করা হয়েছে।',
-    });
+    if (rules) {
+      navigator.clipboard.writeText(rules);
+      toast({
+        title: 'সফল!',
+        description: 'নিয়মাবলী ক্লিপবোর্ডে কপি করা হয়েছে।',
+      });
+    }
   };
 
   return (
@@ -33,15 +51,22 @@ export default function FirestoreRulesPage() {
       </CardHeader>
       <CardContent>
         <div className="relative">
-          <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm text-foreground">
-            <code>{firestoreRules}</code>
-          </pre>
+          {loading ? (
+            <div className="flex items-center justify-center bg-muted p-4 rounded-md h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm text-foreground">
+              <code>{rules}</code>
+            </pre>
+          )}
           <Button
             variant="ghost"
             size="icon"
             className="absolute top-2 right-2"
             onClick={handleCopy}
             aria-label="কপি করুন"
+            disabled={loading || !rules}
           >
             <Copy className="h-4 w-4" />
           </Button>

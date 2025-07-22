@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /donors/{userId} {
+      // Allow anyone to create a new donor document (register)
+      allow create: if true;
+      // Allow users to read, update, or delete their own document
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /donors/{userId} {
+      // Allow admins to read, update, delete any donor document
+      allow read, update, delete: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Rules for other collections
+    match /blogPosts/{postId} {
+      allow read: if true;
+      allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /bloodRequests/{requestId} {
+      allow read: if true;
+      allow create: if request.auth != null; // Only logged-in users can create requests
+      allow update, delete: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin' || request.auth.uid == resource.data.requesterId;
+    }
+
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /teamMembers/{memberId} {
+        allow read: if true;
+        allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /testimonials/{testimonialId} {
+        allow read: if true;
+        allow write: if get(/databases/$(database)/documents/donors/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
