@@ -251,7 +251,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="লিঙ্গ নির্বাচন করুন" />
-                                        </Trigger>
+                                        </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="male">পুরুষ</SelectItem>
