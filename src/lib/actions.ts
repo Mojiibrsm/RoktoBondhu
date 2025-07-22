@@ -210,3 +210,26 @@ export async function getReports() {
     });
     return reports;
 }
+
+export async function getFeedback() {
+    if (!db) {
+      throw new Error('Firestore admin is not initialized.');
+    }
+    const feedbackSnapshot = await db.collection('feedback').orderBy('date', 'desc').get();
+    const feedback = feedbackSnapshot.docs.map(doc => {
+      const data = doc.data();
+      const sanitizedData: { [key: string]: any } = {};
+      for (const key in data) {
+          if (data[key] instanceof Timestamp) {
+              sanitizedData[key] = data[key].toDate().toISOString();
+          } else {
+              sanitizedData[key] = data[key];
+          }
+      }
+      return {
+        id: doc.id,
+        ...sanitizedData
+      };
+    });
+    return feedback;
+}

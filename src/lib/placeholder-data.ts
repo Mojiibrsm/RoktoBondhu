@@ -24,7 +24,7 @@ export const districts: { [key: string]: string[] } = {
 
 export const upazilas: { [key: string]: string[] } = {
     'ঢাকা': ['রমনা', 'মতিঝিল', 'ধানমন্ডি', 'মোহাম্মদপুর', 'উত্তরা', 'গুলশান'],
-    'চট্টগ্রাম': ['কোতোয়ালী', 'পাঁচলাইש', 'ডবলমুরিং', 'চান্দগাঁও', 'হালিশহর', 'খুলশী'],
+    'চট্টগ্রাম': ['কোতোয়ালী', 'পাঁচলাইশ', 'ডবলমুরিং', 'চান্দগাঁও', 'হালিশহর', 'খুলশী'],
     'রাজশাহী': ['বোয়ালিয়া', 'শাহমখদুম', 'মতিহার', 'রাজপাড়া'],
     'খুলনা': ['খুলনা সদর', 'সোনাডাঙ্গা', 'দৌলতপুর'],
     'সাতক্ষীরা': ['সাতক্ষীরা সদর', 'আশাশুনি', 'দেবহাটা', 'কলারোয়া', 'কালিগঞ্জ', 'শ্যামনগর', 'তালা'],
@@ -230,6 +230,23 @@ export const demoData = {
       date: "2024-07-19T18:30:00Z",
       type: "Abuse / Misconduct"
     }
+  ],
+  feedback: [
+    {
+      id: "feedback-1",
+      name: "Salma Khatun",
+      email: "salma@example.com",
+      message: "The website is very user-friendly and the process of finding a donor was incredibly fast. Thank you for this amazing service!",
+      date: "2024-07-21T09:00:00Z",
+      status: "পঠিত"
+    },
+    {
+      id: "feedback-2",
+      name: "Anonymous",
+      email: "anon@example.com",
+      message: "It would be great if you could add a feature to search for donors within a specific radius (e.g., 5 km).",
+      date: "2024-07-22T15:30:00Z",
+      status: "নতুন"
+    }
   ]
 };
-
