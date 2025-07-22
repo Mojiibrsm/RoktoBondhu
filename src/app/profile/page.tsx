@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, Droplet, MapPin, Edit } from "lucide-react";
+import { User, Droplet, MapPin, Edit, HeartHandshake } from "lucide-react";
 
 const donorProfile = {
     name: 'জান্নাতুল ফেরদৌস',
@@ -29,7 +29,8 @@ const donorProfile = {
     district: 'চট্টগ্রাম',
     upazila: 'পাঁচলাইশ',
     lastDonation: '2024-05-10',
-    available: true
+    available: true,
+    totalDonations: 12
 };
 
 export default function ProfilePage() {
@@ -50,7 +51,7 @@ export default function ProfilePage() {
                         <CardTitle className="font-headline text-3xl">{donorProfile.name}</CardTitle>
                         <CardDescription>{donorProfile.email}</CardDescription>
                     </CardHeader>
-                    <CardContent className="text-center space-y-2">
+                    <CardContent className="text-center space-y-3">
                         <div className="flex items-center justify-center gap-2">
                             <Droplet className="w-5 h-5 text-primary" />
                             <span className="text-lg font-bold">{donorProfile.bloodType}</span>
@@ -58,6 +59,10 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-center gap-2 text-muted-foreground">
                             <MapPin className="w-5 h-5" />
                             <span>{donorProfile.upazila}, {donorProfile.district}</span>
+                        </div>
+                         <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                            <HeartHandshake className="w-5 h-5 text-primary" />
+                            <span>মোট রক্তদান: {donorProfile.totalDonations} বার</span>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-2">
@@ -75,7 +80,7 @@ export default function ProfilePage() {
                         <CardTitle className="font-headline flex items-center gap-2">
                             <Edit className="w-6 h-6" /> আপনার তথ্য সম্পাদনা করুন
                         </CardTitle>
-                        <CardDescription>আপনার বিবরণ আপ-টু-ডেট রাখুন যাতে আমরা আপনাকে ضرورتمندদের সাথে সংযুক্ত করতে পারি।</CardDescription>
+                        <CardDescription>আপনার বিবরণ আপ-টু-ডেট রাখুন যাতে আমরা ضرورتمندদের সাথে সংযুক্ত করতে পারি।</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
