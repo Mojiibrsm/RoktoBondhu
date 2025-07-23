@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { format } from 'date-fns';
 
 interface BlogPost {
     id: string;
@@ -30,7 +31,14 @@ export default function BlogPage() {
         const fetchPosts = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, 'blogPosts'));
-                setBlogPosts(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+                setBlogPosts(querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                     // Ensure date is a string or formatted correctly
+                    if (data.date && typeof data.date.toDate === 'function') {
+                        data.date = data.date.toDate().toISOString();
+                    }
+                    return { id: doc.id, ...data } as BlogPost
+                }));
             } catch (error) {
                 console.error("Error fetching blog posts: ", error);
             }
@@ -70,7 +78,7 @@ export default function BlogPage() {
                 </CardContent>
                 <CardFooter className="p-0 pt-4 mt-auto flex justify-between items-center text-sm text-muted-foreground">
                   <span>{post.author} দ্বারা</span>
-                  <span>{post.date}</span>
+                  <span>{post.date ? format(new Date(post.date), "PPP") : ''}</span>
                 </CardFooter>
               </div>
             </Link>

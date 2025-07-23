@@ -10,6 +10,7 @@ import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, limit, orderBy, where } from "firebase/firestore";
+import { format } from 'date-fns';
 
 interface UrgentRequest {
     id: string;
@@ -64,10 +65,16 @@ export default function Home() {
                 const urgentRequestsSnapshot = await getDocs(urgentRequestsQuery);
                 setUrgentRequests(urgentRequestsSnapshot.docs.map(doc => {
                     const data = doc.data();
+                    let postedTimeStr = 'কিছুক্ষণ আগে';
+                    if (data.postedTime && typeof data.postedTime.toDate === 'function') {
+                        postedTimeStr = new Date(data.postedTime.toDate()).toLocaleTimeString('bn-BD');
+                    } else if (data.postedTime) {
+                        postedTimeStr = new Date(data.postedTime).toLocaleTimeString('bn-BD');
+                    }
                     return {
                         id: doc.id,
                         ...data,
-                        postedTime: data.postedTime?.toDate ? new Date(data.postedTime.toDate()).toLocaleTimeString('bn-BD') : 'কিছুক্ষণ আগে'
+                        postedTime: postedTimeStr
                     } as UrgentRequest;
                 }));
 
@@ -79,7 +86,13 @@ export default function Home() {
                 // Fetch Blog Posts
                 const blogPostsQuery = query(collection(db, 'blogPosts'), limit(3));
                 const blogPostsSnapshot = await getDocs(blogPostsQuery);
-                setBlogPosts(blogPostsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+                setBlogPosts(blogPostsSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    if (data.date && typeof data.date.toDate === 'function') {
+                        data.date = data.date.toDate().toISOString();
+                    }
+                    return { id: doc.id, ...data } as BlogPost
+                }));
                 
                 // Fetch Testimonials
                 const testimonialsQuery = query(collection(db, 'testimonials'), limit(3));
@@ -420,7 +433,7 @@ export default function Home() {
                   </CardContent>
                   <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
                     <span>{post.author}</span>
-                    <span>{post.date}</span>
+                    <span>{post.date ? format(new Date(post.date), "PPP") : ''}</span>
                   </CardFooter>
                 </Link>
               </Card>

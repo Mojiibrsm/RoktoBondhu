@@ -7,6 +7,7 @@ import { Calendar, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 interface Post {
     id: string;
@@ -30,7 +31,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
                 const doc = querySnapshot.docs[0];
-                setPost({ id: doc.id, ...doc.data() } as Post);
+                const data = doc.data();
+                // Ensure date is a string or formatted correctly
+                if (data.date && typeof data.date.toDate === 'function') {
+                    data.date = data.date.toDate().toISOString();
+                }
+                setPost({ id: doc.id, ...data } as Post);
             } else {
                 setPost(null);
             }
@@ -63,7 +69,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span>{post.date}</span>
+              <span>{format(new Date(post.date), "PPP")}</span>
             </div>
           </div>
         </header>
