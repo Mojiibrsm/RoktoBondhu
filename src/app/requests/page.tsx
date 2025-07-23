@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Droplet, MapPin, PlusCircle } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 interface BloodRequest {
     id: string;
@@ -30,12 +30,16 @@ export default function RequestsPage() {
     const [requests, setRequests] = useState<BloodRequest[]>([]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, "bloodRequests"), (snapshot) => {
-            const requestsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BloodRequest));
-            setRequests(requestsData);
-        });
-
-        return () => unsubscribe();
+        const fetchRequests = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "bloodRequests"));
+                const requestsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BloodRequest));
+                setRequests(requestsData);
+            } catch (error) {
+                console.error("Error fetching blood requests: ", error);
+            }
+        };
+        fetchRequests();
     }, []);
 
 

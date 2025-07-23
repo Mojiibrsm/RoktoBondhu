@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 interface TeamMember {
     id: string;
@@ -19,10 +19,15 @@ export default function TeamPage() {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'teamMembers'), (snapshot) => {
-            setTeamMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember)));
-        });
-        return () => unsubscribe();
+        const fetchTeamMembers = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'teamMembers'));
+                setTeamMembers(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember)));
+            } catch (error) {
+                console.error("Error fetching team members: ", error);
+            }
+        };
+        fetchTeamMembers();
     }, []);
 
   return (

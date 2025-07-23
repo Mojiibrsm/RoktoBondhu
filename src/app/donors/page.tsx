@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Droplet, MapPin, Search, UserCheck, UserX } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 interface Donor {
     id: string;
@@ -36,12 +36,16 @@ export default function DonorsPage() {
   const [donors, setDonors] = useState<Donor[]>([]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "donors"), (snapshot) => {
-        const donorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Donor));
-        setDonors(donorsData);
-    });
-
-    return () => unsubscribe();
+    const fetchDonors = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "donors"));
+            const donorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Donor));
+            setDonors(donorsData);
+        } catch (error) {
+            console.error("Error fetching donors: ", error);
+        }
+    };
+    fetchDonors();
   }, []);
 
   return (

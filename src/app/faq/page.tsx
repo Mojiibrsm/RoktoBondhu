@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { FaqForm } from "@/components/faq-form";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 interface FaqItem {
     id: string;
@@ -20,10 +20,15 @@ export default function FaqPage() {
     const [faqData, setFaqData] = useState<FaqItem[]>([]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'faqs'), (snapshot) => {
-            setFaqData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FaqItem)));
-        });
-        return () => unsubscribe();
+        const fetchFaqs = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'faqs'));
+                setFaqData(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FaqItem)));
+            } catch (error) {
+                console.error("Error fetching FAQs: ", error);
+            }
+        };
+        fetchFaqs();
     }, []);
 
   return (

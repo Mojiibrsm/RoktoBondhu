@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import Image from 'next/image';
 import { ArrowRight, User, MapPin, Droplet, Clock, HeartHandshake, Search, Heart, Stethoscope, Smile, RefreshCw, Users, BarChart2, LifeBuoy, Handshake, Quote, BellRing, Navigation, Mail, ClipboardList, Github, Linkedin, Globe } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, limit, orderBy, where } from "firebase/firestore";
+import { collection, getDocs, query, limit, orderBy, where } from "firebase/firestore";
 
 interface UrgentRequest {
     id: string;
@@ -56,41 +57,41 @@ export default function Home() {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
     useEffect(() => {
-        const urgentRequestsQuery = query(collection(db, 'bloodRequests'), where('status', '==', 'জরুরী'), limit(3));
-        const topDonorsQuery = query(collection(db, 'donors'), orderBy('totalDonations', 'desc'), limit(4));
-        const blogPostsQuery = query(collection(db, 'blogPosts'), limit(3));
-        const testimonialsQuery = query(collection(db, 'testimonials'), limit(3));
+        const fetchData = async () => {
+            try {
+                // Fetch Urgent Requests
+                const urgentRequestsQuery = query(collection(db, 'bloodRequests'), where('status', '==', 'জরুরী'), limit(3));
+                const urgentRequestsSnapshot = await getDocs(urgentRequestsQuery);
+                setUrgentRequests(urgentRequestsSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        postedTime: data.postedTime?.toDate ? new Date(data.postedTime.toDate()).toLocaleTimeString('bn-BD') : 'কিছুক্ষণ আগে'
+                    } as UrgentRequest;
+                }));
 
-        const unsubUrgent = onSnapshot(urgentRequestsQuery, snapshot => {
-            setUrgentRequests(snapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    // Convert Firestore Timestamp to readable string if needed
-                    postedTime: data.postedTime?.toDate ? new Date(data.postedTime.toDate()).toLocaleTimeString('bn-BD') : 'কিছুক্ষণ আগে'
-                } as UrgentRequest;
-            }));
-        });
+                // Fetch Top Donors
+                const topDonorsQuery = query(collection(db, 'donors'), orderBy('totalDonations', 'desc'), limit(4));
+                const topDonorsSnapshot = await getDocs(topDonorsQuery);
+                setTopDonors(topDonorsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TopDonor)));
 
-        const unsubDonors = onSnapshot(topDonorsQuery, snapshot => {
-            setTopDonors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TopDonor)));
-        });
+                // Fetch Blog Posts
+                const blogPostsQuery = query(collection(db, 'blogPosts'), limit(3));
+                const blogPostsSnapshot = await getDocs(blogPostsQuery);
+                setBlogPosts(blogPostsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+                
+                // Fetch Testimonials
+                const testimonialsQuery = query(collection(db, 'testimonials'), limit(3));
+                const testimonialsSnapshot = await getDocs(testimonialsQuery);
+                setTestimonials(testimonialsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial)));
 
-        const unsubBlogs = onSnapshot(blogPostsQuery, snapshot => {
-            setBlogPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
-        });
-
-        const unsubTestimonials = onSnapshot(testimonialsQuery, snapshot => {
-            setTestimonials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial)));
-        });
-
-        return () => {
-            unsubUrgent();
-            unsubDonors();
-            unsubBlogs();
-            unsubTestimonials();
-        }
+            } catch (error) {
+                console.error("Error fetching homepage data:", error);
+            }
+        };
+        
+        fetchData();
     }, []);
 
   return (

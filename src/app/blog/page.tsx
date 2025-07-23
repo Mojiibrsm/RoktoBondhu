@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 interface BlogPost {
     id: string;
@@ -27,10 +27,15 @@ export default function BlogPage() {
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'blogPosts'), (snapshot) => {
-            setBlogPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
-        });
-        return () => unsubscribe();
+        const fetchPosts = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'blogPosts'));
+                setBlogPosts(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+            } catch (error) {
+                console.error("Error fetching blog posts: ", error);
+            }
+        };
+        fetchPosts();
     }, []);
 
   return (
